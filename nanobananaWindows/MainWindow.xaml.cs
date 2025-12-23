@@ -86,6 +86,9 @@ namespace nanobananaWindows
                 case OutputType.FaceSheet:
                     await OpenFaceSheetSettingsDialogAsync();
                     break;
+                case OutputType.BodySheet:
+                    await OpenBodySheetSettingsDialogAsync();
+                    break;
                 // TODO: 他の出力タイプのダイアログを追加
                 default:
                     // 未実装の出力タイプ
@@ -115,6 +118,24 @@ namespace nanobananaWindows
             {
                 // 適用された設定を保存
                 _viewModel.FaceSheetSettings = dialog.ResultSettings;
+                UpdateSettingsStatus();
+            }
+        }
+
+        /// <summary>
+        /// 素体三面図の詳細設定ダイアログを開く
+        /// </summary>
+        private async System.Threading.Tasks.Task OpenBodySheetSettingsDialogAsync()
+        {
+            var dialog = new BodySheetSettingsDialog(this, _viewModel.BodySheetSettings);
+            dialog.XamlRoot = this.Content.XamlRoot;
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary && dialog.ResultSettings != null)
+            {
+                // 適用された設定を保存
+                _viewModel.BodySheetSettings = dialog.ResultSettings;
                 UpdateSettingsStatus();
             }
         }

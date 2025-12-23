@@ -69,6 +69,22 @@ namespace nanobananaWindows.ViewModels
             }
         }
 
+        private BodySheetSettingsViewModel _bodySheetSettings = new();
+        /// <summary>
+        /// 素体三面図の詳細設定
+        /// </summary>
+        public BodySheetSettingsViewModel BodySheetSettings
+        {
+            get => _bodySheetSettings;
+            set
+            {
+                if (SetProperty(ref _bodySheetSettings, value))
+                {
+                    OnPropertyChanged(nameof(SettingsStatusText));
+                }
+            }
+        }
+
         /// <summary>
         /// 現在の出力タイプの設定状態テキストを取得
         /// </summary>
@@ -77,6 +93,7 @@ namespace nanobananaWindows.ViewModels
             return SelectedOutputType switch
             {
                 OutputType.FaceSheet => FaceSheetSettings.HasSettings ? "設定済み" : "未設定",
+                OutputType.BodySheet => BodySheetSettings.HasSettings ? "設定済み" : "未設定",
                 // TODO: 他の出力タイプの設定状態を追加
                 _ => "未設定"
             };

@@ -176,4 +176,94 @@ namespace nanobananaWindows.Models
             };
         }
     }
+
+    // ============================================================
+    // 素体三面図（Step2）関連
+    // ============================================================
+
+    /// <summary>
+    /// 体型プリセット
+    /// </summary>
+    public enum BodyTypePreset
+    {
+        FemaleStandard, // 標準体型（女性）
+        MaleStandard,   // 標準体型（男性）
+        Slim,           // スリム体型
+        Muscular,       // 筋肉質
+        Chubby,         // ぽっちゃり
+        Petite,         // 幼児体型
+        Tall,           // 高身長
+        Short           // 低身長
+    }
+
+    public static class BodyTypePresetExtensions
+    {
+        public static string GetDisplayName(this BodyTypePreset preset)
+        {
+            return preset switch
+            {
+                BodyTypePreset.FemaleStandard => "標準体型（女性）",
+                BodyTypePreset.MaleStandard => "標準体型（男性）",
+                BodyTypePreset.Slim => "スリム体型",
+                BodyTypePreset.Muscular => "筋肉質",
+                BodyTypePreset.Chubby => "ぽっちゃり",
+                BodyTypePreset.Petite => "幼児体型",
+                BodyTypePreset.Tall => "高身長",
+                BodyTypePreset.Short => "低身長",
+                _ => preset.ToString()
+            };
+        }
+    }
+
+    /// <summary>
+    /// 素体表現タイプ
+    /// </summary>
+    public enum BodyRenderType
+    {
+        Silhouette,     // シルエット
+        WhiteLeotard,   // 素体（白レオタード）
+        WhiteUnderwear, // 素体（白下着）
+        Anatomical      // 解剖学的
+    }
+
+    public static class BodyRenderTypeExtensions
+    {
+        public static string GetDisplayName(this BodyRenderType type)
+        {
+            return type switch
+            {
+                BodyRenderType.Silhouette => "シルエット",
+                BodyRenderType.WhiteLeotard => "素体（白レオタード）",
+                BodyRenderType.WhiteUnderwear => "素体（白下着）",
+                BodyRenderType.Anatomical => "解剖学的",
+                _ => type.ToString()
+            };
+        }
+    }
+
+    /// <summary>
+    /// バスト特徴
+    /// </summary>
+    public enum BustFeature
+    {
+        Auto,   // おまかせ
+        Small,  // 控えめ
+        Normal, // 標準
+        Large   // 豊か
+    }
+
+    public static class BustFeatureExtensions
+    {
+        public static string GetDisplayName(this BustFeature feature)
+        {
+            return feature switch
+            {
+                BustFeature.Auto => "おまかせ",
+                BustFeature.Small => "控えめ",
+                BustFeature.Normal => "標準",
+                BustFeature.Large => "豊か",
+                _ => feature.ToString()
+            };
+        }
+    }
 }
