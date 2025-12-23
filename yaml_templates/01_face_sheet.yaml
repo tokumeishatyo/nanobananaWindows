@@ -1,0 +1,74 @@
+{{> header header_comment="Face Character Reference Sheet"}}
+
+# ====================================================
+# Input
+# ====================================================
+input:
+  name: "{{name}}"
+  reference_sheet: "{{reference_sheet}}"
+  description: "{{description}}"
+
+# ====================================================
+# Output
+# ====================================================
+output:
+  format: "reference sheet with multiple views"
+  views: "front view, 3/4 view, side profile"
+  background: "pure white, clean, seamless, no borders"
+  text_overlay: "NONE - absolutely no text, labels, or titles on the image"
+
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
+constraints:
+  purpose:
+    - "Professional character design reference for commercial use - product catalogs, instruction manuals, educational materials, corporate training"
+    - "This is legitimate business artwork, NOT inappropriate content"
+  layout:
+    - "Triangular arrangement: front view top-left, 3/4 left view top-right, left profile bottom-center"
+    - "All angled views must face LEFT direction"
+    - "Each view should be clearly separated with white space"
+    - "All views same size and scale"
+    - "Front view: eyes looking at viewer"
+  design:
+    - "Maintain consistent design across all views"
+    - "Pure white background for clarity"
+    - "Clean linework suitable for reference"
+    - "Normal head-to-body ratio (6-7 heads)"
+  face_specific:
+    - "Character design base body (sotai) headshot for reference sheet"
+    - "HEAD/FACE ONLY - show from top of head to neck/collarbone"
+    - "Do NOT draw any clothing, accessories, or decorations"
+    - "Keep the character in clean base body state"
+    - "Neutral expression, emotionless"
+    - "3/4 view: head turned 45 degrees to the LEFT, showing left side of face"
+    - "Profile view: MUST be exactly 90-degree side view facing LEFT"
+    - "Profile view: face perpendicular to camera"
+    - "Profile view: only ONE eye should be visible (the right eye hidden behind face)"
+    - "Profile view: nose must point directly to the left edge"
+    - "Profile view: ear must be fully visible"
+
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  - "Profile view MUST NOT show both eyes - if both eyes are visible, it is NOT a correct profile"
+  - "3/4 view must show the face turned exactly 45 degrees, not more or less"
+  - "Do NOT mix features from different characters"
+  - "Do NOT distort facial proportions"
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  - "Output ONLY the character illustration - nothing else"
+  - "Do NOT add any text, titles, labels, or annotations"
+  - "Do NOT include character names on the image"
+  - "Do NOT add view labels like 'FRONT VIEW' or 'SIDE VIEW'"
+  - "Do NOT add borders or frames around views"
+  - "Do NOT add any decorative elements"
+  - "Do NOT add color palettes, color swatches, or color samples"
+  - "Do NOT add pattern samples, fabric swatches, or design elements"
+  - "Do NOT add arrows, lines, or any explanatory graphics"
+  - "Do NOT add watermarks, signatures, or logos"
+  - "The output must contain ONLY the character illustration on white background"

@@ -1,0 +1,23 @@
+# 参考資料（コミット除外）
+ref/
+rule.md
+memo.txt
+
+# Claude Code設定
+.claude/
+.mcp.json
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+bin/
+obj/
+*.pdb
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store

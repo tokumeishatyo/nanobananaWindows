@@ -1,0 +1,82 @@
+{{> header header_comment="Infographic (インフォグラフィック)"}}
+
+# ====================================================
+# Input
+# ====================================================
+input:
+  infographic_style: "{{infographic_style}}"
+  output_language: "{{output_language}}"
+  main_title: "{{main_title}}"
+  subtitle: "{{subtitle}}"
+  main_character_image: "{{main_character_image}}"
+  bonus_character_image: "{{bonus_character_image}}"
+
+# ====================================================
+# Main Character
+# ====================================================
+main_character:
+  image: "{{main_character_image}}"
+  position: "center"
+  instruction: "Place this character image at the center of the infographic"
+
+# ====================================================
+# Bonus Character
+# ====================================================
+bonus_character:
+  enabled: {{bonus_character_enabled}}
+  image: "{{bonus_character_image}}"
+  placement: "AI decides optimal placement"
+  instruction: "Place this bonus character (e.g., chibi version) somewhere in the infographic as a decorative element"
+
+# ====================================================
+# Generation
+# ====================================================
+# Layout reference:
+#   [1] [2] [3]
+#   [4] CHAR [5]
+#   [6] [7] [8]
+prompt: |
+  Create a detailed infographic about this person/character in {{infographic_style}} style.
+  Use the attached character image as the central figure.
+  Include extremely detailed information - small text is acceptable if it adds more detail.
+
+  Style: {{infographic_style_prompt}}
+
+  Main title: "{{main_title}}"
+  Subtitle: "{{subtitle}}"
+
+  Include these sections around the character:
+  - {{section_1_title}}: {{section_1_content}}
+  - {{section_2_title}}: {{section_2_content}}
+  - {{section_3_title}}: {{section_3_content}}
+  - {{section_4_title}}: {{section_4_content}}
+  - {{section_5_title}}: {{section_5_content}}
+  - {{section_6_title}}: {{section_6_content}}
+  - {{section_7_title}}: {{section_7_content}}
+  - {{section_8_title}}: {{section_8_content}}
+
+  Output language: {{output_language}}
+
+  IMPORTANT:
+  - Create related icons and decorations automatically based on the content
+  - Use the {{infographic_style}} visual style consistently
+  - Make it visually engaging with colors, icons, and artistic elements
+  - Include as much detail as possible in small organized sections
+
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
+constraints:
+  - "Use the provided character image as the main central figure"
+  - "Arrange information sections around the character"
+  - "Create appropriate icons and decorations based on content (AI decides)"
+  - "Output all text in specified output_language"
+  - "Maintain infographic style throughout"
+
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  - "Do NOT change the character's appearance from the provided image"
+  - "Do NOT omit any of the specified sections"
+  - "Do NOT add unrelated information not in the sections"

@@ -1,0 +1,36 @@
+{{> header header_comment="Background Generation (背景生成)"}}
+
+# ====================================================
+# Input
+# ====================================================
+input:
+  use_reference_image: {{use_reference_image}}
+  reference_image: "{{reference_image}}"
+  remove_people: {{remove_people}}
+  description: "{{description}}"
+
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
+constraints:
+  - "Use the reference image as the base for the background (if provided)"
+  - "Apply the description/transformation instruction to modify the style/atmosphere"
+  - "Maintain the general composition and layout from the reference (if provided)"
+
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  - "Do NOT include any characters or people in the output"
+  - "Do NOT add elements not present in the reference or description"
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  - "Output ONLY the background illustration - nothing else"
+  - "Do NOT add any text, titles, labels, or annotations"
+  - "Do NOT add color palettes or color samples"
+  - "Do NOT add location markers, arrows, or explanatory graphics"
+  - "Do NOT add watermarks, signatures, or logos"
+  - "The output must contain ONLY the background scene"

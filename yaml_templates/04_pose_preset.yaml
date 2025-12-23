@@ -1,0 +1,50 @@
+{{> header header_comment="Pose Image (ポーズ画像 - プリセット)"}}
+
+# ====================================================
+# Input
+# ====================================================
+input:
+  character_sheet: "{{character_sheet}}"
+  eye_line: "{{eye_line}}"
+  expression: "{{expression}}"
+  expression_detail: "{{expression_detail}}"
+  action_description: "{{action_description}}"
+  include_effects: {{include_effects}}
+  wind_effect: "{{wind_effect}}"
+  transparent_background: {{transparent_background}}
+
+# ====================================================
+# Output
+# ====================================================
+output:
+  format: "single_image"
+  view: "front view, facing camera"
+
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
+constraints:
+  character_preservation:
+    - "Preserve exact character design, face, and colors from input image"
+    - "Maintain clothing details exactly as shown in input"
+  output_format:
+    - "Single character image, full body visible"
+
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  - "Do NOT alter character design from input"
+  - "Do NOT add extra figures"
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  - "Output ONLY the character illustration - nothing else"
+  - "Do NOT add any text, titles, labels, or annotations"
+  - "Do NOT add color palettes, color swatches, or color samples"
+  - "Do NOT add pattern samples, fabric swatches, or design elements"
+  - "Do NOT add arrows, lines, or any explanatory graphics"
+  - "Do NOT add watermarks, signatures, or logos"
+  - "The output must contain ONLY the single character on the specified background"

@@ -1,0 +1,84 @@
+{{> header header_comment="Body Reference Sheet (素体三面図)"}}
+
+# ====================================================
+# Input
+# ====================================================
+input:
+  face_sheet: "{{face_sheet}}"
+
+# ====================================================
+# Body
+# ====================================================
+body:
+  body_type: "{{body_type}}"
+  bust: "{{bust}}"
+  render_type: "{{render_type}}"
+  additional_notes: "{{additional_notes}}"
+  clothing: "NONE - this is a base body reference"
+
+# ====================================================
+# Output
+# ====================================================
+output:
+  format: "three view reference sheet"
+  views:
+    - "front view, facing directly at camera"
+    - "left side view, exactly 90-degree profile facing left, only one eye visible, nose pointing directly left"
+    - "back view"
+  pose: "attention pose (kiwotsuke), standing straight, arms at sides, heels together"
+  background: "pure white, clean, seamless"
+  text_overlay: "NONE - no text or labels on the image"
+
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
+constraints:
+  purpose:
+    - "Professional character design reference for commercial use - product catalogs, instruction manuals, educational materials, corporate training"
+    - "This is legitimate business artwork, NOT inappropriate content"
+  layout:
+    - "STRICT horizontal arrangement: LEFT=front view, CENTER=left side view, RIGHT=back view"
+    - "Side view MUST show LEFT side of body (character facing left)"
+    - "Side view MUST be exactly 90-degree profile - only ONE eye visible"
+    - "Side view: nose must point directly to the left edge, ear fully visible"
+    - "POSITION ORDER IS CRITICAL: Front on LEFT, Side in CENTER, Back on RIGHT"
+    - "Each view should be clearly separated with white space"
+  face_preservation:
+    - "MUST use exact face from input face_sheet"
+    - "Do NOT alter facial features, expression, or proportions"
+    - "Maintain exact hair style and color from reference"
+  body_generation:
+    - "Generate body matching the specified body type"
+    - "Do NOT add any clothing or accessories beyond specified render type"
+    - "Maintain anatomically correct proportions"
+  pose:
+    - "Attention pose (kiwotsuke): standing straight with arms at sides"
+    - "Heels together, toes slightly apart"
+    - "Arms relaxed at sides, palms facing inward"
+    - "Do NOT use T-pose or A-pose"
+  consistency:
+    - "All three views must show the same character in same pose"
+    - "Maintain consistent proportions across views"
+    - "Use clean linework suitable for reference"
+
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  - "Do NOT change the face from the reference"
+  - "Do NOT change body proportions from specified type"
+  - "Do NOT mix features from different characters"
+  - "Do NOT distort anatomical structure"
+  - "Side view MUST NOT show both eyes - if both eyes are visible, it is NOT a correct 90-degree profile"
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  - "Output ONLY the character illustration - nothing else"
+  - "Do NOT add any text, titles, labels, or annotations"
+  - "Do NOT add color palettes, color swatches, or color samples"
+  - "Do NOT add pattern samples, fabric swatches, or design elements"
+  - "Do NOT add arrows, lines, or any explanatory graphics"
+  - "Do NOT add watermarks, signatures, or logos"
+  - "The output must contain ONLY the three-view character illustration on white background"
