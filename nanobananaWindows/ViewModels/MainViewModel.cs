@@ -50,6 +50,39 @@ namespace nanobananaWindows.ViewModels
         public bool IsSettingsButtonEnabled => true; // 常に有効
 
         // ============================================================
+        // 各出力タイプの詳細設定
+        // ============================================================
+
+        private FaceSheetSettingsViewModel _faceSheetSettings = new();
+        /// <summary>
+        /// 顔三面図の詳細設定
+        /// </summary>
+        public FaceSheetSettingsViewModel FaceSheetSettings
+        {
+            get => _faceSheetSettings;
+            set
+            {
+                if (SetProperty(ref _faceSheetSettings, value))
+                {
+                    OnPropertyChanged(nameof(SettingsStatusText));
+                }
+            }
+        }
+
+        /// <summary>
+        /// 現在の出力タイプの設定状態テキストを取得
+        /// </summary>
+        public string GetCurrentSettingsStatus()
+        {
+            return SelectedOutputType switch
+            {
+                OutputType.FaceSheet => FaceSheetSettings.HasSettings ? "設定済み" : "未設定",
+                // TODO: 他の出力タイプの設定状態を追加
+                _ => "未設定"
+            };
+        }
+
+        // ============================================================
         // スタイル設定
         // ============================================================
 

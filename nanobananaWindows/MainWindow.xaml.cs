@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using nanobananaWindows.Models;
 using nanobananaWindows.ViewModels;
+using nanobananaWindows.Views.Settings;
 
 namespace nanobananaWindows
 {
@@ -73,14 +74,58 @@ namespace nanobananaWindows
             if (OutputTypeComboBox.SelectedItem is ComboBoxItem item && item.Tag is OutputType type)
             {
                 _viewModel.SelectedOutputType = type;
-                SettingsStatusText.Text = _viewModel.SettingsStatusText;
+                UpdateSettingsStatus();
             }
         }
 
-        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        private async void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: 詳細設定ダイアログを開く
-            _viewModel.OpenSettingsWindow();
+            // 出力タイプに応じた詳細設定ダイアログを開く
+            switch (_viewModel.SelectedOutputType)
+            {
+                case OutputType.FaceSheet:
+                    await OpenFaceSheetSettingsDialogAsync();
+                    break;
+                // TODO: 他の出力タイプのダイアログを追加
+                default:
+                    // 未実装の出力タイプ
+                    var dialog = new ContentDialog
+                    {
+                        Title = "未実装",
+                        Content = $"{_viewModel.SelectedOutputType.GetDisplayName()}の詳細設定は準備中です。",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.Content.XamlRoot
+                    };
+                    await dialog.ShowAsync();
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 顔三面図の詳細設定ダイアログを開く
+        /// </summary>
+        private async System.Threading.Tasks.Task OpenFaceSheetSettingsDialogAsync()
+        {
+            var dialog = new FaceSheetSettingsDialog(this, _viewModel.FaceSheetSettings);
+            dialog.XamlRoot = this.Content.XamlRoot;
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary && dialog.ResultSettings != null)
+            {
+                // 適用された設定を保存
+                _viewModel.FaceSheetSettings = dialog.ResultSettings;
+                UpdateSettingsStatus();
+            }
+        }
+
+        /// <summary>
+        /// 設定状態表示を更新
+        /// </summary>
+        private void UpdateSettingsStatus()
+        {
+            var status = _viewModel.GetCurrentSettingsStatus();
+            SettingsStatusText.Text = $"現在の設定: {_viewModel.SelectedOutputType.GetDisplayName()} ({status})";
         }
 
         private void ColorModeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
