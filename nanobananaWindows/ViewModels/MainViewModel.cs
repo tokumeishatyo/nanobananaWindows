@@ -133,6 +133,86 @@ namespace nanobananaWindows.ViewModels
             }
         }
 
+        private BackgroundSettingsViewModel _backgroundSettings = new();
+        /// <summary>
+        /// 背景生成の詳細設定
+        /// </summary>
+        public BackgroundSettingsViewModel BackgroundSettings
+        {
+            get => _backgroundSettings;
+            set
+            {
+                if (SetProperty(ref _backgroundSettings, value))
+                {
+                    OnPropertyChanged(nameof(SettingsStatusText));
+                }
+            }
+        }
+
+        private DecorativeTextSettingsViewModel _decorativeTextSettings = new();
+        /// <summary>
+        /// 装飾テキストの詳細設定
+        /// </summary>
+        public DecorativeTextSettingsViewModel DecorativeTextSettings
+        {
+            get => _decorativeTextSettings;
+            set
+            {
+                if (SetProperty(ref _decorativeTextSettings, value))
+                {
+                    OnPropertyChanged(nameof(SettingsStatusText));
+                }
+            }
+        }
+
+        private FourPanelMangaSettingsViewModel _fourPanelMangaSettings = new();
+        /// <summary>
+        /// 4コマ漫画の詳細設定
+        /// </summary>
+        public FourPanelMangaSettingsViewModel FourPanelMangaSettings
+        {
+            get => _fourPanelMangaSettings;
+            set
+            {
+                if (SetProperty(ref _fourPanelMangaSettings, value))
+                {
+                    OnPropertyChanged(nameof(SettingsStatusText));
+                }
+            }
+        }
+
+        private StyleTransformSettingsViewModel _styleTransformSettings = new();
+        /// <summary>
+        /// スタイル変換の詳細設定
+        /// </summary>
+        public StyleTransformSettingsViewModel StyleTransformSettings
+        {
+            get => _styleTransformSettings;
+            set
+            {
+                if (SetProperty(ref _styleTransformSettings, value))
+                {
+                    OnPropertyChanged(nameof(SettingsStatusText));
+                }
+            }
+        }
+
+        private InfographicSettingsViewModel _infographicSettings = new();
+        /// <summary>
+        /// インフォグラフィックの詳細設定
+        /// </summary>
+        public InfographicSettingsViewModel InfographicSettings
+        {
+            get => _infographicSettings;
+            set
+            {
+                if (SetProperty(ref _infographicSettings, value))
+                {
+                    OnPropertyChanged(nameof(SettingsStatusText));
+                }
+            }
+        }
+
         /// <summary>
         /// 現在の出力タイプの設定状態テキストを取得
         /// </summary>
@@ -145,7 +225,11 @@ namespace nanobananaWindows.ViewModels
                 OutputType.Outfit => OutfitSettings.HasSettings ? "設定済み" : "未設定",
                 OutputType.Pose => PoseSettings.HasSettings ? "設定済み" : "未設定",
                 OutputType.SceneBuilder => SceneBuilderSettings.HasSettings ? "設定済み" : "未設定",
-                // TODO: 他の出力タイプの設定状態を追加
+                OutputType.Background => BackgroundSettings.HasSettings ? "設定済み" : "未設定",
+                OutputType.DecorativeText => DecorativeTextSettings.HasSettings ? "設定済み" : "未設定",
+                OutputType.FourPanelManga => FourPanelMangaSettings.HasSettings ? "設定済み" : "未設定",
+                OutputType.StyleTransform => StyleTransformSettings.HasSettings ? "設定済み" : "未設定",
+                OutputType.Infographic => InfographicSettings.HasSettings ? "設定済み" : "未設定",
                 _ => "未設定"
             };
         }

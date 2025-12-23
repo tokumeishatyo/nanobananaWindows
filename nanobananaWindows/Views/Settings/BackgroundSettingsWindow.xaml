@@ -1,0 +1,137 @@
+<!-- rule.mdを読むこと -->
+<Window
+    x:Class="nanobananaWindows.Views.Settings.BackgroundSettingsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- メインコンテンツ -->
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="24,16,24,16">
+            <StackPanel Spacing="16" MinWidth="500">
+                <!-- モード選択 -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="4" Padding="12">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="背景生成モード" FontWeight="SemiBold"/>
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+                            <RadioButton x:Name="DescriptionModeRadio"
+                                         Content="説明文で生成"
+                                         IsChecked="True"
+                                         Checked="ModeRadio_Checked"/>
+                            <RadioButton x:Name="ReferenceModeRadio"
+                                         Content="参考画像から生成"
+                                         Checked="ModeRadio_Checked"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 説明文モードセクション -->
+                <StackPanel x:Name="DescriptionSection" Spacing="12">
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            CornerRadius="4" Padding="12">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="背景の情景説明" FontWeight="SemiBold"/>
+                            <TextBlock Text="生成したい背景の説明を入力してください（日本語/英語どちらでも可）"
+                                       FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox x:Name="DescriptionTextBox"
+                                     PlaceholderText="例：夕焼けに染まる都市の街並み、高層ビルが並ぶ、温かみのある光"
+                                     TextWrapping="Wrap"
+                                     AcceptsReturn="True"
+                                     Height="120"
+                                     TextChanged="DescriptionTextBox_TextChanged"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- 参考画像モードセクション -->
+                <StackPanel x:Name="ReferenceSection" Spacing="12" Visibility="Collapsed">
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            CornerRadius="4" Padding="12">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="参考画像から背景を生成" FontWeight="SemiBold"/>
+
+                            <!-- 参考画像パス -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="参考画像:" FontSize="12"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="ReferenceImagePathTextBox"
+                                             PlaceholderText="参考画像のパスを入力..."
+                                             AllowDrop="True"
+                                             DragOver="ImagePathTextBox_DragOver"
+                                             Drop="ReferenceImagePathTextBox_Drop"
+                                             TextChanged="ReferenceImagePathTextBox_TextChanged"
+                                             Grid.Column="0"/>
+                                    <Button x:Name="BrowseReferenceButton"
+                                            Content="参照..."
+                                            Click="BrowseReferenceButton_Click"
+                                            Margin="8,0,0,0"
+                                            Grid.Column="1"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- 人物除去オプション -->
+                            <CheckBox x:Name="RemoveCharactersCheckBox"
+                                      Content="人物を除去する"
+                                      IsChecked="True"
+                                      Checked="RemoveCharactersCheckBox_Changed"
+                                      Unchecked="RemoveCharactersCheckBox_Changed"/>
+
+                            <!-- 変換指示 -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="変換指示（任意）:" FontSize="12"/>
+                                <TextBox x:Name="TransformDescriptionTextBox"
+                                         PlaceholderText="例：アニメ調に変換、夕焼けの光を追加..."
+                                         TextWrapping="Wrap"
+                                         AcceptsReturn="True"
+                                         Height="80"
+                                         TextChanged="TransformDescriptionTextBox_TextChanged"/>
+                                <TextBlock Text="※ 空欄の場合は「アニメ調に変換」がデフォルトで適用されます"
+                                           FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+
+                            <TextBlock Text="※ 参考画像の著作権はユーザー責任です"
+                                       FontSize="11" Foreground="Orange"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- 出力例 -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="4" Padding="12">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="出力について" FontWeight="SemiBold" FontSize="12"/>
+                        <TextBlock Text="• 指定されたスタイル（アニメ調/水彩画風など）で背景画像を生成" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="• 人物は含まれません（背景のみ）" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="• シーンビルダーの背景として使用可能" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ボタンエリア -->
+        <Border Grid.Row="1"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="24,12">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                <Button x:Name="ApplyButton" Content="適用" Style="{StaticResource AccentButtonStyle}"
+                        Click="ApplyButton_Click" Width="100"/>
+                <Button x:Name="CancelButton" Content="キャンセル"
+                        Click="CancelButton_Click" Width="100"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

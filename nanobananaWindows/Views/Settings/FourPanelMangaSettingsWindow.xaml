@@ -1,0 +1,139 @@
+<!-- rule.mdを読むこと -->
+<Window
+    x:Class="nanobananaWindows.Views.Settings.FourPanelMangaSettingsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- メインコンテンツ -->
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="24,16,24,16">
+            <StackPanel Spacing="16" MinWidth="700">
+                <!-- キャラクター設定 -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="4" Padding="12">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="登場人物" FontWeight="SemiBold"/>
+
+                        <!-- キャラクター1 -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="キャラクター1（必須）" FontSize="12" FontWeight="SemiBold"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="名前:" VerticalAlignment="Center" Grid.Row="0"/>
+                                <TextBox x:Name="Character1NameTextBox" PlaceholderText="例：彩瀬翔子"
+                                         Grid.Row="0" Grid.Column="1" Margin="0,2"
+                                         TextChanged="Character1NameTextBox_TextChanged"/>
+
+                                <TextBlock Text="画像:" VerticalAlignment="Center" Grid.Row="1"/>
+                                <Grid Grid.Row="1" Grid.Column="1" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="Character1ImagePathTextBox" PlaceholderText="参照画像のパス..."
+                                             AllowDrop="True" DragOver="ImagePathTextBox_DragOver"
+                                             Drop="Character1ImagePathTextBox_Drop"
+                                             TextChanged="Character1ImagePathTextBox_TextChanged"/>
+                                    <Button Content="参照..." Click="BrowseCharacter1Button_Click"
+                                            Margin="8,0,0,0" Grid.Column="1"/>
+                                </Grid>
+
+                                <TextBlock Text="説明:" VerticalAlignment="Center" Grid.Row="2"/>
+                                <TextBox x:Name="Character1DescriptionTextBox" PlaceholderText="例：ポニーテールの赤髪、制服姿"
+                                         Grid.Row="2" Grid.Column="1" Margin="0,2"
+                                         TextChanged="Character1DescriptionTextBox_TextChanged"/>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- キャラクター2 -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="キャラクター2（任意）" FontSize="12" FontWeight="SemiBold"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="名前:" VerticalAlignment="Center" Grid.Row="0"/>
+                                <TextBox x:Name="Character2NameTextBox" PlaceholderText="例：鈴木由衣"
+                                         Grid.Row="0" Grid.Column="1" Margin="0,2"
+                                         TextChanged="Character2NameTextBox_TextChanged"/>
+
+                                <TextBlock Text="画像:" VerticalAlignment="Center" Grid.Row="1"/>
+                                <Grid Grid.Row="1" Grid.Column="1" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="Character2ImagePathTextBox" PlaceholderText="参照画像のパス..."
+                                             AllowDrop="True" DragOver="ImagePathTextBox_DragOver"
+                                             Drop="Character2ImagePathTextBox_Drop"
+                                             TextChanged="Character2ImagePathTextBox_TextChanged"/>
+                                    <Button Content="参照..." Click="BrowseCharacter2Button_Click"
+                                            Margin="8,0,0,0" Grid.Column="1"/>
+                                </Grid>
+
+                                <TextBlock Text="説明:" VerticalAlignment="Center" Grid.Row="2"/>
+                                <TextBox x:Name="Character2DescriptionTextBox" PlaceholderText="例：ショートヘアの黒髪、制服姿"
+                                         Grid.Row="2" Grid.Column="1" Margin="0,2"
+                                         TextChanged="Character2DescriptionTextBox_TextChanged"/>
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 4コマパネル設定 -->
+                <StackPanel x:Name="PanelsContainer" Spacing="12">
+                    <!-- パネルは動的に生成 -->
+                </StackPanel>
+
+                <!-- 注意事項 -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="4" Padding="12">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="出力について" FontWeight="SemiBold" FontSize="12"/>
+                        <TextBlock Text="• 4コマ漫画は縦1列に配置されます" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="• セリフは吹き出しで表示されます" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="• ナレーションはコマの上部または下部に表示されます" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ボタンエリア -->
+        <Border Grid.Row="1"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="24,12">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                <Button x:Name="ApplyButton" Content="適用" Style="{StaticResource AccentButtonStyle}"
+                        Click="ApplyButton_Click" Width="100"/>
+                <Button x:Name="CancelButton" Content="キャンセル"
+                        Click="CancelButton_Click" Width="100"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

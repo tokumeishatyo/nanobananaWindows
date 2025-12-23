@@ -1,0 +1,248 @@
+<!-- rule.mdを読むこと -->
+<Window
+    x:Class="nanobananaWindows.Views.Settings.OutfitSettingsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- メインコンテンツ -->
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="24,16,24,16">
+            <StackPanel Spacing="16" MinWidth="500">
+                <!-- 素体三面図の画像パス -->
+                <StackPanel Spacing="4">
+                    <TextBlock Text="入力画像（素体三面図）" FontWeight="SemiBold"/>
+                    <TextBlock Text="※Step2で生成した素体三面図を指定"
+                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="BodySheetImagePathTextBox"
+                                 PlaceholderText="画像をドロップ、またはパスを入力..."
+                                 AllowDrop="True"
+                                 DragOver="ImagePathTextBox_DragOver"
+                                 Drop="BodySheetImagePathTextBox_Drop"
+                                 TextChanged="BodySheetImagePathTextBox_TextChanged"
+                                 Grid.Column="0"/>
+                        <Button x:Name="BrowseBodySheetButton"
+                                Content="参照..."
+                                Click="BrowseBodySheetButton_Click"
+                                Margin="8,0,0,0"
+                                Grid.Column="1"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- 衣装選択方法 -->
+                <StackPanel Spacing="4">
+                    <TextBlock Text="衣装選択方法" FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Horizontal" Spacing="16">
+                        <RadioButton x:Name="PresetModeRadio"
+                                     Content="プリセットから選ぶ"
+                                     IsChecked="True"
+                                     Checked="OutfitModeRadio_Checked"/>
+                        <RadioButton x:Name="ReferenceModeRadio"
+                                     Content="参考画像から着せる"
+                                     Checked="OutfitModeRadio_Checked"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- プリセット衣装セクション -->
+                <StackPanel x:Name="PresetSection" Spacing="12">
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            CornerRadius="4" Padding="12">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="プリセット衣装" FontWeight="SemiBold"/>
+
+                            <!-- カテゴリ -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="カテゴリ:" VerticalAlignment="Center"/>
+                                <ComboBox x:Name="OutfitCategoryComboBox"
+                                          HorizontalAlignment="Stretch"
+                                          SelectionChanged="OutfitCategoryComboBox_SelectionChanged"
+                                          Grid.Column="1"/>
+                            </Grid>
+
+                            <!-- 形状 -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="形状:" VerticalAlignment="Center"/>
+                                <ComboBox x:Name="OutfitShapeComboBox"
+                                          HorizontalAlignment="Stretch"
+                                          SelectionChanged="OutfitShapeComboBox_SelectionChanged"
+                                          Grid.Column="1"/>
+                            </Grid>
+
+                            <!-- 色 -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="色:" VerticalAlignment="Center"/>
+                                <ComboBox x:Name="OutfitColorComboBox"
+                                          HorizontalAlignment="Stretch"
+                                          SelectionChanged="OutfitColorComboBox_SelectionChanged"
+                                          Grid.Column="1"/>
+                            </Grid>
+
+                            <!-- 柄 -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="柄:" VerticalAlignment="Center"/>
+                                <ComboBox x:Name="OutfitPatternComboBox"
+                                          HorizontalAlignment="Stretch"
+                                          SelectionChanged="OutfitPatternComboBox_SelectionChanged"
+                                          Grid.Column="1"/>
+                            </Grid>
+
+                            <!-- 印象 -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="印象:" VerticalAlignment="Center"/>
+                                <ComboBox x:Name="OutfitStyleComboBox"
+                                          HorizontalAlignment="Stretch"
+                                          SelectionChanged="OutfitStyleComboBox_SelectionChanged"
+                                          Grid.Column="1"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- 参考画像モードセクション -->
+                <StackPanel x:Name="ReferenceSection" Spacing="12" Visibility="Collapsed">
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            CornerRadius="4" Padding="12">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="参考画像から衣装を着せる" FontWeight="SemiBold"/>
+
+                            <!-- 衣装参考画像 -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="衣装参考画像:" FontSize="12"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="ReferenceOutfitImagePathTextBox"
+                                             PlaceholderText="画像をドロップ、またはパスを入力..."
+                                             AllowDrop="True"
+                                             DragOver="ImagePathTextBox_DragOver"
+                                             Drop="ReferenceOutfitImagePathTextBox_Drop"
+                                             TextChanged="ReferenceOutfitImagePathTextBox_TextChanged"
+                                             Grid.Column="0"/>
+                                    <Button x:Name="BrowseReferenceOutfitButton"
+                                            Content="参照..."
+                                            Click="BrowseReferenceOutfitButton_Click"
+                                            Margin="8,0,0,0"
+                                            Grid.Column="1"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- 衣装説明 -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="衣装説明（任意）:" FontSize="12"/>
+                                <TextBox x:Name="ReferenceDescriptionTextBox"
+                                         PlaceholderText="参考画像の衣装について補足説明..."
+                                         TextChanged="ReferenceDescriptionTextBox_TextChanged"/>
+                            </StackPanel>
+
+                            <!-- フィットモード -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="フィットモード:" FontSize="12"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <RadioButton x:Name="BodyPriorityRadio"
+                                                 Content="素体優先"
+                                                 IsChecked="True"
+                                                 Checked="FitModeRadio_Checked"/>
+                                    <RadioButton x:Name="OutfitPriorityRadio"
+                                                 Content="衣装優先"
+                                                 Checked="FitModeRadio_Checked"/>
+                                    <RadioButton x:Name="HybridRadio"
+                                                 Content="ハイブリッド"
+                                                 Checked="FitModeRadio_Checked"/>
+                                </StackPanel>
+                                <TextBlock Text="素体優先: 衣装を素体にフィット / 衣装優先: 体型を衣装に合わせる / ハイブリッド: 顔は素体、体型は衣装"
+                                           FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                            <!-- 頭部装飾 -->
+                            <CheckBox x:Name="IncludeHeadwearCheckBox"
+                                      Content="頭部装飾（帽子・ヘルメット等）を含める"
+                                      Checked="IncludeHeadwearCheckBox_Changed"
+                                      Unchecked="IncludeHeadwearCheckBox_Changed"/>
+                            <TextBlock Text="※ ハイブリッドモードでは頭部全体（髪型含む）が素体から取られるため、このオプションは無効です"
+                                       FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       TextWrapping="Wrap"/>
+
+                            <TextBlock Text="※ 参考画像の著作権はユーザー責任です"
+                                       FontSize="11" Foreground="Orange"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- 追加説明 -->
+                <StackPanel Spacing="4">
+                    <TextBlock Text="追加説明" FontWeight="SemiBold"/>
+                    <TextBlock Text="衣装の追加詳細があれば入力"
+                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBox x:Name="AdditionalDescriptionTextBox"
+                             PlaceholderText="例: アクセサリーを追加、特定のディテール..."
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             Height="60"
+                             TextChanged="AdditionalDescriptionTextBox_TextChanged"/>
+                </StackPanel>
+
+                <!-- 制約事項 -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="4" Padding="12">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="生成時の制約" FontWeight="SemiBold" FontSize="12"/>
+                        <TextBlock Text="• 素体三面図の顔・体型をそのまま使用（変更禁止）" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="• 指定された衣装を着用（素体の上に衣装を描画）" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="• 三面図形式を維持（正面/横/背面）" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="• 衣装のみを変更（髪型・顔は変更しない）" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ボタンエリア -->
+        <Border Grid.Row="1"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="24,12">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                <Button x:Name="ApplyButton" Content="適用" Style="{StaticResource AccentButtonStyle}"
+                        Click="ApplyButton_Click" Width="100"/>
+                <Button x:Name="CancelButton" Content="キャンセル"
+                        Click="CancelButton_Click" Width="100"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

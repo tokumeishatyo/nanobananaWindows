@@ -80,25 +80,39 @@ namespace nanobananaWindows
 
         private async void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            // 出力タイプに応じた詳細設定ダイアログを開く
+            // 出力タイプに応じた詳細設定ウィンドウを開く
             switch (_viewModel.SelectedOutputType)
             {
                 case OutputType.FaceSheet:
-                    await OpenFaceSheetSettingsDialogAsync();
+                    await OpenFaceSheetSettingsWindowAsync();
                     break;
                 case OutputType.BodySheet:
-                    await OpenBodySheetSettingsDialogAsync();
+                    await OpenBodySheetSettingsWindowAsync();
                     break;
                 case OutputType.Outfit:
-                    await OpenOutfitSettingsDialogAsync();
+                    await OpenOutfitSettingsWindowAsync();
                     break;
                 case OutputType.Pose:
-                    await OpenPoseSettingsDialogAsync();
+                    await OpenPoseSettingsWindowAsync();
                     break;
                 case OutputType.SceneBuilder:
-                    await OpenSceneBuilderSettingsDialogAsync();
+                    await OpenSceneBuilderSettingsWindowAsync();
                     break;
-                // TODO: 他の出力タイプのダイアログを追加
+                case OutputType.Background:
+                    await OpenBackgroundSettingsWindowAsync();
+                    break;
+                case OutputType.DecorativeText:
+                    await OpenDecorativeTextSettingsWindowAsync();
+                    break;
+                case OutputType.FourPanelManga:
+                    await OpenFourPanelMangaSettingsWindowAsync();
+                    break;
+                case OutputType.StyleTransform:
+                    await OpenStyleTransformSettingsWindowAsync();
+                    break;
+                case OutputType.Infographic:
+                    await OpenInfographicSettingsWindowAsync();
+                    break;
                 default:
                     // 未実装の出力タイプ
                     var dialog = new ContentDialog
@@ -114,91 +128,156 @@ namespace nanobananaWindows
         }
 
         /// <summary>
-        /// 顔三面図の詳細設定ダイアログを開く
+        /// 顔三面図の詳細設定ウィンドウを開く
         /// </summary>
-        private async System.Threading.Tasks.Task OpenFaceSheetSettingsDialogAsync()
+        private async System.Threading.Tasks.Task OpenFaceSheetSettingsWindowAsync()
         {
-            var dialog = new FaceSheetSettingsDialog(this, _viewModel.FaceSheetSettings);
-            dialog.XamlRoot = this.Content.XamlRoot;
+            var window = new FaceSheetSettingsWindow(_viewModel.FaceSheetSettings);
+            var result = await window.ShowDialogAsync();
 
-            var result = await dialog.ShowAsync();
-
-            if (result == ContentDialogResult.Primary && dialog.ResultSettings != null)
+            if (result && window.ResultSettings != null)
             {
                 // 適用された設定を保存
-                _viewModel.FaceSheetSettings = dialog.ResultSettings;
+                _viewModel.FaceSheetSettings = window.ResultSettings;
                 UpdateSettingsStatus();
             }
         }
 
         /// <summary>
-        /// 素体三面図の詳細設定ダイアログを開く
+        /// 素体三面図の詳細設定ウィンドウを開く
         /// </summary>
-        private async System.Threading.Tasks.Task OpenBodySheetSettingsDialogAsync()
+        private async System.Threading.Tasks.Task OpenBodySheetSettingsWindowAsync()
         {
-            var dialog = new BodySheetSettingsDialog(this, _viewModel.BodySheetSettings);
-            dialog.XamlRoot = this.Content.XamlRoot;
+            var window = new BodySheetSettingsWindow(_viewModel.BodySheetSettings);
+            var result = await window.ShowDialogAsync();
 
-            var result = await dialog.ShowAsync();
-
-            if (result == ContentDialogResult.Primary && dialog.ResultSettings != null)
+            if (result && window.ResultSettings != null)
             {
                 // 適用された設定を保存
-                _viewModel.BodySheetSettings = dialog.ResultSettings;
+                _viewModel.BodySheetSettings = window.ResultSettings;
                 UpdateSettingsStatus();
             }
         }
 
         /// <summary>
-        /// 衣装着用の詳細設定ダイアログを開く
+        /// 衣装着用の詳細設定ウィンドウを開く
         /// </summary>
-        private async System.Threading.Tasks.Task OpenOutfitSettingsDialogAsync()
+        private async System.Threading.Tasks.Task OpenOutfitSettingsWindowAsync()
         {
-            var dialog = new OutfitSettingsDialog(this, _viewModel.OutfitSettings);
-            dialog.XamlRoot = this.Content.XamlRoot;
+            var window = new OutfitSettingsWindow(_viewModel.OutfitSettings);
+            var result = await window.ShowDialogAsync();
 
-            var result = await dialog.ShowAsync();
-
-            if (result == ContentDialogResult.Primary && dialog.ResultSettings != null)
+            if (result && window.ResultSettings != null)
             {
                 // 適用された設定を保存
-                _viewModel.OutfitSettings = dialog.ResultSettings;
+                _viewModel.OutfitSettings = window.ResultSettings;
                 UpdateSettingsStatus();
             }
         }
 
         /// <summary>
-        /// ポーズの詳細設定ダイアログを開く
+        /// ポーズの詳細設定ウィンドウを開く
         /// </summary>
-        private async System.Threading.Tasks.Task OpenPoseSettingsDialogAsync()
+        private async System.Threading.Tasks.Task OpenPoseSettingsWindowAsync()
         {
-            var dialog = new PoseSettingsDialog(this, _viewModel.PoseSettings);
-            dialog.XamlRoot = this.Content.XamlRoot;
+            var window = new PoseSettingsWindow(_viewModel.PoseSettings);
+            var result = await window.ShowDialogAsync();
 
-            var result = await dialog.ShowAsync();
-
-            if (result == ContentDialogResult.Primary && dialog.ResultSettings != null)
+            if (result && window.ResultSettings != null)
             {
                 // 適用された設定を保存
-                _viewModel.PoseSettings = dialog.ResultSettings;
+                _viewModel.PoseSettings = window.ResultSettings;
                 UpdateSettingsStatus();
             }
         }
 
         /// <summary>
-        /// シーンビルダーの詳細設定ダイアログを開く
+        /// シーンビルダーの詳細設定ウィンドウを開く
         /// </summary>
-        private async System.Threading.Tasks.Task OpenSceneBuilderSettingsDialogAsync()
+        private async System.Threading.Tasks.Task OpenSceneBuilderSettingsWindowAsync()
         {
-            var dialog = new SceneBuilderSettingsDialog(this, _viewModel.SceneBuilderSettings);
-            dialog.XamlRoot = this.Content.XamlRoot;
+            var window = new SceneBuilderSettingsWindow(_viewModel.SceneBuilderSettings);
+            var result = await window.ShowDialogAsync();
 
-            var result = await dialog.ShowAsync();
-
-            if (result == ContentDialogResult.Primary && dialog.ResultSettings != null)
+            if (result && window.ResultSettings != null)
             {
                 // 適用された設定を保存
-                _viewModel.SceneBuilderSettings = dialog.ResultSettings;
+                _viewModel.SceneBuilderSettings = window.ResultSettings;
+                UpdateSettingsStatus();
+            }
+        }
+
+        /// <summary>
+        /// 背景生成の詳細設定ウィンドウを開く
+        /// </summary>
+        private async System.Threading.Tasks.Task OpenBackgroundSettingsWindowAsync()
+        {
+            var window = new BackgroundSettingsWindow(_viewModel.BackgroundSettings);
+            var result = await window.ShowDialogAsync();
+
+            if (result && window.ResultSettings != null)
+            {
+                _viewModel.BackgroundSettings = window.ResultSettings;
+                UpdateSettingsStatus();
+            }
+        }
+
+        /// <summary>
+        /// 装飾テキストの詳細設定ウィンドウを開く
+        /// </summary>
+        private async System.Threading.Tasks.Task OpenDecorativeTextSettingsWindowAsync()
+        {
+            var window = new DecorativeTextSettingsWindow(_viewModel.DecorativeTextSettings);
+            var result = await window.ShowDialogAsync();
+
+            if (result && window.ResultSettings != null)
+            {
+                _viewModel.DecorativeTextSettings = window.ResultSettings;
+                UpdateSettingsStatus();
+            }
+        }
+
+        /// <summary>
+        /// 4コマ漫画の詳細設定ウィンドウを開く
+        /// </summary>
+        private async System.Threading.Tasks.Task OpenFourPanelMangaSettingsWindowAsync()
+        {
+            var window = new FourPanelMangaSettingsWindow(_viewModel.FourPanelMangaSettings);
+            var result = await window.ShowDialogAsync();
+
+            if (result && window.ResultSettings != null)
+            {
+                _viewModel.FourPanelMangaSettings = window.ResultSettings;
+                UpdateSettingsStatus();
+            }
+        }
+
+        /// <summary>
+        /// スタイル変換の詳細設定ウィンドウを開く
+        /// </summary>
+        private async System.Threading.Tasks.Task OpenStyleTransformSettingsWindowAsync()
+        {
+            var window = new StyleTransformSettingsWindow(_viewModel.StyleTransformSettings);
+            var result = await window.ShowDialogAsync();
+
+            if (result && window.ResultSettings != null)
+            {
+                _viewModel.StyleTransformSettings = window.ResultSettings;
+                UpdateSettingsStatus();
+            }
+        }
+
+        /// <summary>
+        /// インフォグラフィックの詳細設定ウィンドウを開く
+        /// </summary>
+        private async System.Threading.Tasks.Task OpenInfographicSettingsWindowAsync()
+        {
+            var window = new InfographicSettingsWindow(_viewModel.InfographicSettings);
+            var result = await window.ShowDialogAsync();
+
+            if (result && window.ResultSettings != null)
+            {
+                _viewModel.InfographicSettings = window.ResultSettings;
                 UpdateSettingsStatus();
             }
         }

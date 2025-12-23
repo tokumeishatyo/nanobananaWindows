@@ -1,20 +1,24 @@
 // rule.mdを読むこと
 using System;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using nanobananaWindows.Models;
 using nanobananaWindows.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage.Pickers;
 
 namespace nanobananaWindows.Views.Settings
 {
     /// <summary>
-    /// ポーズ 詳細設定ダイアログ
+    /// ポーズ 詳細設定ウィンドウ（移動・リサイズ可能）
     /// </summary>
-    public sealed partial class PoseSettingsDialog : ContentDialog
+    public sealed partial class PoseSettingsWindow : Window
     {
         private readonly PoseSettingsViewModel _viewModel;
+        private TaskCompletionSource<bool>? _taskCompletionSource;
         private bool _isInitialized = false;
 
         /// <summary>
@@ -22,10 +26,9 @@ namespace nanobananaWindows.Views.Settings
         /// </summary>
         public PoseSettingsViewModel? ResultSettings { get; private set; }
 
-        public PoseSettingsDialog(Window parentWindow, PoseSettingsViewModel? initialSettings = null)
+        public PoseSettingsWindow(PoseSettingsViewModel? initialSettings = null)
         {
             InitializeComponent();
-            // parentWindowはドラッグアンドドロップ方式に変更したため未使用
 
             // 既存設定がある場合はコピーして使用
             if (initialSettings != null)
@@ -37,6 +40,18 @@ namespace nanobananaWindows.Views.Settings
                 _viewModel = new PoseSettingsViewModel();
             }
 
+            // ウィンドウサイズ設定
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+            var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+            appWindow.Resize(new Windows.Graphics.SizeInt32(750, 900));
+
+            // タイトル設定
+            Title = "ポーズ 詳細設定";
+
+            // 閉じるイベント
+            this.Closed += OnWindowClosed;
+
             // コンボボックスを初期化
             InitializeComboBoxes();
 
@@ -44,6 +59,16 @@ namespace nanobananaWindows.Views.Settings
             LoadSettingsToUI();
 
             _isInitialized = true;
+        }
+
+        /// <summary>
+        /// ダイアログ的に表示して結果を待機
+        /// </summary>
+        public Task<bool> ShowDialogAsync()
+        {
+            _taskCompletionSource = new TaskCompletionSource<bool>();
+            this.Activate();
+            return _taskCompletionSource.Task;
         }
 
         /// <summary>
@@ -107,6 +132,7 @@ namespace nanobananaWindows.Views.Settings
         {
             bool usePoseCapture = _viewModel.UsePoseCapture;
             PoseReferenceImagePathTextBox.IsEnabled = usePoseCapture;
+            BrowsePoseReferenceButton.IsEnabled = usePoseCapture;
             PosePresetComboBox.IsEnabled = !usePoseCapture;
         }
 
@@ -294,19 +320,74 @@ namespace nanobananaWindows.Views.Settings
         }
 
         // ============================================================
-        // ダイアログボタン
+        // 参照ボタン
         // ============================================================
 
-        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private async void BrowsePoseReferenceButton_Click(object sender, RoutedEventArgs e)
         {
-            // 適用：設定を返す
-            ResultSettings = _viewModel;
+            var picker = new FileOpenPicker();
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
+
+            picker.ViewMode = PickerViewMode.Thumbnail;
+            picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            picker.FileTypeFilter.Add(".png");
+            picker.FileTypeFilter.Add(".jpg");
+            picker.FileTypeFilter.Add(".jpeg");
+            picker.FileTypeFilter.Add(".gif");
+            picker.FileTypeFilter.Add(".webp");
+
+            var file = await picker.PickSingleFileAsync();
+            if (file != null)
+            {
+                _viewModel.PoseReferenceImagePath = file.Path;
+                PoseReferenceImagePathTextBox.Text = file.Path;
+            }
         }
 
-        private void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private async void BrowseOutfitSheetButton_Click(object sender, RoutedEventArgs e)
         {
-            // キャンセル：nullを返す
+            var picker = new FileOpenPicker();
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
+
+            picker.ViewMode = PickerViewMode.Thumbnail;
+            picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            picker.FileTypeFilter.Add(".png");
+            picker.FileTypeFilter.Add(".jpg");
+            picker.FileTypeFilter.Add(".jpeg");
+            picker.FileTypeFilter.Add(".gif");
+            picker.FileTypeFilter.Add(".webp");
+
+            var file = await picker.PickSingleFileAsync();
+            if (file != null)
+            {
+                _viewModel.OutfitSheetImagePath = file.Path;
+                OutfitSheetImagePathTextBox.Text = file.Path;
+            }
+        }
+
+        // ============================================================
+        // ウィンドウボタン
+        // ============================================================
+
+        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        {
+            ResultSettings = _viewModel;
+            _taskCompletionSource?.SetResult(true);
+            this.Close();
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
             ResultSettings = null;
+            _taskCompletionSource?.SetResult(false);
+            this.Close();
+        }
+
+        private void OnWindowClosed(object sender, WindowEventArgs args)
+        {
+            _taskCompletionSource?.TrySetResult(false);
         }
     }
 }

@@ -2,36 +2,40 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using nanobananaWindows.Models;
 using nanobananaWindows.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage.Pickers;
 
 namespace nanobananaWindows.Views.Settings
 {
     /// <summary>
-    /// シーンビルダー 詳細設定ダイアログ
+    /// シーンビルダー 詳細設定ウィンドウ（移動・リサイズ可能）
     /// </summary>
-    public sealed partial class SceneBuilderSettingsDialog : ContentDialog
+    public sealed partial class SceneBuilderSettingsWindow : Window
     {
+        private const int MaxTextOverlayItems = 10;
         private readonly SceneBuilderSettingsViewModel _viewModel;
-        private readonly Window _parentWindow;
+        private TaskCompletionSource<bool>? _taskCompletionSource;
         private bool _isInitialized = false;
 
         // 動的生成したUI要素の参照
         private readonly List<Border> _characterRows = new();
         private readonly List<TextBox> _dialogueBoxes = new();
+        private readonly List<Border> _textOverlayRows = new();
 
         /// <summary>
         /// 適用された設定を取得
         /// </summary>
         public SceneBuilderSettingsViewModel? ResultSettings { get; private set; }
 
-        public SceneBuilderSettingsDialog(Window parentWindow, SceneBuilderSettingsViewModel? initialSettings = null)
+        public SceneBuilderSettingsWindow(SceneBuilderSettingsViewModel? initialSettings = null)
         {
             InitializeComponent();
-            _parentWindow = parentWindow;
 
             // 既存設定がある場合はコピーして使用
             if (initialSettings != null)
@@ -43,6 +47,18 @@ namespace nanobananaWindows.Views.Settings
                 _viewModel = new SceneBuilderSettingsViewModel();
             }
 
+            // ウィンドウサイズ設定
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+            var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+            appWindow.Resize(new Windows.Graphics.SizeInt32(950, 800));
+
+            // タイトル設定
+            Title = "シーンビルダー 詳細設定";
+
+            // 閉じるイベント
+            this.Closed += OnWindowClosed;
+
             // コンボボックスを初期化
             InitializeComboBoxes();
 
@@ -52,8 +68,19 @@ namespace nanobananaWindows.Views.Settings
             // キャラクター・ダイアログUIを構築
             RebuildCharacterUI();
             RebuildDialogueUI();
+            RebuildTextOverlayUI();
 
             _isInitialized = true;
+        }
+
+        /// <summary>
+        /// ダイアログ的に表示して結果を待機
+        /// </summary>
+        public Task<bool> ShowDialogAsync()
+        {
+            _taskCompletionSource = new TaskCompletionSource<bool>();
+            this.Activate();
+            return _taskCompletionSource.Task;
         }
 
         /// <summary>
@@ -141,9 +168,6 @@ namespace nanobananaWindows.Views.Settings
             // ダイアログ設定
             SelectComboBoxItem(NarrationPositionComboBox, _viewModel.StoryNarrationPosition);
             NarrationTextBox.Text = _viewModel.StoryNarration;
-
-            // 装飾テキストカウント
-            UpdateTextOverlayCount();
         }
 
         /// <summary>
@@ -216,8 +240,8 @@ namespace nanobananaWindows.Views.Settings
             var imagePathBox = new TextBox
             {
                 Text = character.ImagePath,
-                PlaceholderText = "画像ファイルをドロップ、またはパスを入力...",
-                Width = 400,
+                PlaceholderText = "画像をドロップ、またはパスを入力...",
+                Width = 350,
                 AllowDrop = true
             };
             int capturedIndex = index;
@@ -240,6 +264,27 @@ namespace nanobananaWindows.Views.Settings
                 }
             };
             imageStack.Children.Add(imagePathBox);
+            var browseButton = new Button { Content = "参照...", Margin = new Thickness(4, 0, 0, 0) };
+            browseButton.Click += async (s, e) =>
+            {
+                var picker = new FileOpenPicker();
+                var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
+                picker.ViewMode = PickerViewMode.Thumbnail;
+                picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+                picker.FileTypeFilter.Add(".png");
+                picker.FileTypeFilter.Add(".jpg");
+                picker.FileTypeFilter.Add(".jpeg");
+                picker.FileTypeFilter.Add(".gif");
+                picker.FileTypeFilter.Add(".webp");
+                var file = await picker.PickSingleFileAsync();
+                if (file != null)
+                {
+                    _viewModel.StoryCharacters[capturedIndex].ImagePath = file.Path;
+                    imagePathBox.Text = file.Path;
+                }
+            };
+            imageStack.Children.Add(browseButton);
             stack.Children.Add(imageStack);
 
             // 表情・特徴
@@ -314,6 +359,184 @@ namespace nanobananaWindows.Views.Settings
         }
 
         /// <summary>
+        /// 装飾テキストUIを再構築
+        /// </summary>
+        private void RebuildTextOverlayUI()
+        {
+            // カウント更新
+            TextOverlayCountText.Text = $"{_viewModel.TextOverlayItems.Count} / {MaxTextOverlayItems}";
+
+            // ボタン状態更新
+            TextOverlayAddButton.IsEnabled = _viewModel.TextOverlayItems.Count < MaxTextOverlayItems;
+            TextOverlayRemoveButton.IsEnabled = _viewModel.TextOverlayItems.Count > 0;
+
+            // プレースホルダー表示/非表示
+            TextOverlayPlaceholderText.Visibility = _viewModel.TextOverlayItems.Count == 0
+                ? Visibility.Visible : Visibility.Collapsed;
+
+            // 既存の行をクリア
+            foreach (var row in _textOverlayRows)
+            {
+                TextOverlayItemsPanel.Children.Remove(row);
+            }
+            _textOverlayRows.Clear();
+
+            // 各アイテムの行を作成
+            for (int i = 0; i < _viewModel.TextOverlayItems.Count; i++)
+            {
+                var row = CreateTextOverlayRow(i);
+                _textOverlayRows.Add(row);
+                TextOverlayItemsPanel.Children.Add(row);
+            }
+        }
+
+        /// <summary>
+        /// 装飾テキスト行を作成
+        /// </summary>
+        private Border CreateTextOverlayRow(int index)
+        {
+            var item = _viewModel.TextOverlayItems[index];
+
+            var border = new Border
+            {
+                Background = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["SubtleFillColorSecondaryBrush"],
+                CornerRadius = new CornerRadius(4),
+                Padding = new Thickness(8)
+            };
+
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });  // 番号
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // 画像パス
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(50) });  // 参照ボタン
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) }); // 位置
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) });  // サイズ
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) }); // レイヤー
+
+            // 番号
+            var numberText = new TextBlock
+            {
+                Text = $"{index + 1}.",
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["TextFillColorSecondaryBrush"]
+            };
+            Grid.SetColumn(numberText, 0);
+            grid.Children.Add(numberText);
+
+            // 画像パス
+            int capturedIndex = index;
+            var imagePathBox = new TextBox
+            {
+                Text = item.ImagePath,
+                PlaceholderText = "画像パス（ドロップ可）",
+                AllowDrop = true,
+                Margin = new Thickness(4, 0, 4, 0)
+            };
+            imagePathBox.TextChanged += (s, e) => _viewModel.TextOverlayItems[capturedIndex].ImagePath = imagePathBox.Text;
+            imagePathBox.DragOver += ImagePathTextBox_DragOver;
+            imagePathBox.Drop += async (s, e) =>
+            {
+                if (e.DataView.Contains(StandardDataFormats.StorageItems))
+                {
+                    var items = await e.DataView.GetStorageItemsAsync();
+                    if (items.Count > 0)
+                    {
+                        var file = items[0] as Windows.Storage.StorageFile;
+                        if (file != null && IsImageFile(file.Name))
+                        {
+                            _viewModel.TextOverlayItems[capturedIndex].ImagePath = file.Path;
+                            imagePathBox.Text = file.Path;
+                        }
+                    }
+                }
+            };
+            Grid.SetColumn(imagePathBox, 1);
+            grid.Children.Add(imagePathBox);
+
+            // 参照ボタン
+            var browseButton = new Button
+            {
+                Content = "...",
+                Margin = new Thickness(2, 0, 2, 0),
+                Padding = new Thickness(8, 4, 8, 4)
+            };
+            browseButton.Click += async (s, e) =>
+            {
+                var picker = new FileOpenPicker();
+                var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
+                picker.ViewMode = PickerViewMode.Thumbnail;
+                picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+                picker.FileTypeFilter.Add(".png");
+                picker.FileTypeFilter.Add(".jpg");
+                picker.FileTypeFilter.Add(".jpeg");
+                picker.FileTypeFilter.Add(".gif");
+                picker.FileTypeFilter.Add(".webp");
+                var file = await picker.PickSingleFileAsync();
+                if (file != null)
+                {
+                    _viewModel.TextOverlayItems[capturedIndex].ImagePath = file.Path;
+                    imagePathBox.Text = file.Path;
+                }
+            };
+            Grid.SetColumn(browseButton, 2);
+            grid.Children.Add(browseButton);
+
+            // 位置
+            var positionBox = new TextBox
+            {
+                Text = item.Position,
+                PlaceholderText = "Center",
+                Margin = new Thickness(4, 0, 4, 0)
+            };
+            positionBox.TextChanged += (s, e) => _viewModel.TextOverlayItems[capturedIndex].Position = positionBox.Text;
+            Grid.SetColumn(positionBox, 3);
+            grid.Children.Add(positionBox);
+
+            // サイズ
+            var sizeBox = new TextBox
+            {
+                Text = item.Size,
+                PlaceholderText = "100%",
+                Margin = new Thickness(4, 0, 4, 0)
+            };
+            sizeBox.TextChanged += (s, e) => _viewModel.TextOverlayItems[capturedIndex].Size = sizeBox.Text;
+            Grid.SetColumn(sizeBox, 4);
+            grid.Children.Add(sizeBox);
+
+            // レイヤー
+            var layerCombo = new ComboBox
+            {
+                Margin = new Thickness(4, 0, 0, 0)
+            };
+            foreach (var layer in Enum.GetValues<TextOverlayLayer>())
+            {
+                layerCombo.Items.Add(new ComboBoxItem { Content = layer.GetDisplayName(), Tag = layer });
+            }
+            // 現在の値を選択
+            for (int i = 0; i < layerCombo.Items.Count; i++)
+            {
+                if (layerCombo.Items[i] is ComboBoxItem comboItem && comboItem.Tag is TextOverlayLayer l && l == item.Layer)
+                {
+                    layerCombo.SelectedIndex = i;
+                    break;
+                }
+            }
+            int layerCapturedIndex = capturedIndex;
+            layerCombo.SelectionChanged += (s, e) =>
+            {
+                if (layerCombo.SelectedItem is ComboBoxItem comboItem && comboItem.Tag is TextOverlayLayer l)
+                {
+                    _viewModel.TextOverlayItems[layerCapturedIndex].Layer = l;
+                }
+            };
+            Grid.SetColumn(layerCombo, 5);
+            grid.Children.Add(layerCombo);
+
+            border.Child = grid;
+            return border;
+        }
+
+        /// <summary>
         /// カスタム雰囲気の表示/非表示を更新
         /// </summary>
         private void UpdateCustomMoodVisibility()
@@ -329,14 +552,6 @@ namespace nanobananaWindows.Views.Settings
         {
             CustomLayoutPanel.Visibility = _viewModel.StoryLayout == StoryLayout.Custom
                 ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        /// <summary>
-        /// 装飾テキストカウントを更新
-        /// </summary>
-        private void UpdateTextOverlayCount()
-        {
-            TextOverlayCountText.Text = $"（{_viewModel.TextOverlayItems.Count}件）";
         }
 
         /// <summary>
@@ -416,6 +631,28 @@ namespace nanobananaWindows.Views.Settings
                         BackgroundImagePathTextBox.Text = file.Path;
                     }
                 }
+            }
+        }
+
+        private async void BrowseBackgroundButton_Click(object sender, RoutedEventArgs e)
+        {
+            var picker = new FileOpenPicker();
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
+
+            picker.ViewMode = PickerViewMode.Thumbnail;
+            picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            picker.FileTypeFilter.Add(".png");
+            picker.FileTypeFilter.Add(".jpg");
+            picker.FileTypeFilter.Add(".jpeg");
+            picker.FileTypeFilter.Add(".gif");
+            picker.FileTypeFilter.Add(".webp");
+
+            var file = await picker.PickSingleFileAsync();
+            if (file != null)
+            {
+                _viewModel.BackgroundImagePath = file.Path;
+                BackgroundImagePathTextBox.Text = file.Path;
             }
         }
 
@@ -515,39 +752,45 @@ namespace nanobananaWindows.Views.Settings
         // イベントハンドラ - 装飾テキスト
         // ============================================================
 
-        private async void TextOverlaySettingsButton_Click(object sender, RoutedEventArgs e)
+        private void TextOverlayAddButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new TextOverlayPlacementDialog(_viewModel.TextOverlayItems);
-            dialog.XamlRoot = this.XamlRoot;
-
-            var result = await dialog.ShowAsync();
-
-            if (result == ContentDialogResult.Primary && dialog.ResultItems != null)
+            if (_viewModel.TextOverlayItems.Count < MaxTextOverlayItems)
             {
-                // 結果を反映
-                _viewModel.TextOverlayItems.Clear();
-                foreach (var item in dialog.ResultItems)
-                {
-                    _viewModel.TextOverlayItems.Add(item);
-                }
-                UpdateTextOverlayCount();
+                _viewModel.TextOverlayItems.Add(new TextOverlayItem());
+                RebuildTextOverlayUI();
+            }
+        }
+
+        private void TextOverlayRemoveButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel.TextOverlayItems.Count > 0)
+            {
+                _viewModel.TextOverlayItems.RemoveAt(_viewModel.TextOverlayItems.Count - 1);
+                RebuildTextOverlayUI();
             }
         }
 
         // ============================================================
-        // ダイアログボタン
+        // ウィンドウボタン
         // ============================================================
 
-        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
-            // 適用：設定を返す
             ResultSettings = _viewModel;
+            _taskCompletionSource?.SetResult(true);
+            this.Close();
         }
 
-        private void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            // キャンセル：nullを返す
             ResultSettings = null;
+            _taskCompletionSource?.SetResult(false);
+            this.Close();
+        }
+
+        private void OnWindowClosed(object sender, WindowEventArgs args)
+        {
+            _taskCompletionSource?.TrySetResult(false);
         }
     }
 }

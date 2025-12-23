@@ -1,21 +1,24 @@
 // rule.mdを読むこと
 using System;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using nanobananaWindows.Models;
 using nanobananaWindows.ViewModels;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage.Pickers;
 
 namespace nanobananaWindows.Views.Settings
 {
     /// <summary>
-    /// 衣装着用 詳細設定ダイアログ
+    /// 衣装着用 詳細設定ウィンドウ（移動・リサイズ可能）
     /// </summary>
-    public sealed partial class OutfitSettingsDialog : ContentDialog
+    public sealed partial class OutfitSettingsWindow : Window
     {
         private readonly OutfitSettingsViewModel _viewModel;
-        private readonly Window _parentWindow;
+        private TaskCompletionSource<bool>? _taskCompletionSource;
         private bool _isInitialized = false;
 
         /// <summary>
@@ -23,10 +26,9 @@ namespace nanobananaWindows.Views.Settings
         /// </summary>
         public OutfitSettingsViewModel? ResultSettings { get; private set; }
 
-        public OutfitSettingsDialog(Window parentWindow, OutfitSettingsViewModel? initialSettings = null)
+        public OutfitSettingsWindow(OutfitSettingsViewModel? initialSettings = null)
         {
             InitializeComponent();
-            _parentWindow = parentWindow;
 
             // 既存設定がある場合はコピーして使用
             if (initialSettings != null)
@@ -38,6 +40,18 @@ namespace nanobananaWindows.Views.Settings
                 _viewModel = new OutfitSettingsViewModel();
             }
 
+            // ウィンドウサイズ設定
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+            var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+            appWindow.Resize(new Windows.Graphics.SizeInt32(700, 850));
+
+            // タイトル設定
+            Title = "衣装着用 詳細設定";
+
+            // 閉じるイベント
+            this.Closed += OnWindowClosed;
+
             // コンボボックスを初期化
             InitializeComboBoxes();
 
@@ -45,6 +59,16 @@ namespace nanobananaWindows.Views.Settings
             LoadSettingsToUI();
 
             _isInitialized = true;
+        }
+
+        /// <summary>
+        /// ダイアログ的に表示して結果を待機
+        /// </summary>
+        public Task<bool> ShowDialogAsync()
+        {
+            _taskCompletionSource = new TaskCompletionSource<bool>();
+            this.Activate();
+            return _taskCompletionSource.Task;
         }
 
         /// <summary>
@@ -188,7 +212,7 @@ namespace nanobananaWindows.Views.Settings
         private async void BrowseBodySheetButton_Click(object sender, RoutedEventArgs e)
         {
             var picker = new FileOpenPicker();
-            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(_parentWindow);
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
 
             picker.ViewMode = PickerViewMode.Thumbnail;
@@ -284,7 +308,7 @@ namespace nanobananaWindows.Views.Settings
         private async void BrowseReferenceOutfitButton_Click(object sender, RoutedEventArgs e)
         {
             var picker = new FileOpenPicker();
-            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(_parentWindow);
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
 
             picker.ViewMode = PickerViewMode.Thumbnail;
@@ -329,19 +353,90 @@ namespace nanobananaWindows.Views.Settings
         }
 
         // ============================================================
-        // ダイアログボタン
+        // ドラッグアンドドロップ
         // ============================================================
 
-        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        /// <summary>
+        /// 画像ファイルのドラッグオーバー処理
+        /// </summary>
+        private void ImagePathTextBox_DragOver(object sender, DragEventArgs e)
         {
-            // 適用：設定を返す
-            ResultSettings = _viewModel;
+            if (e.DataView.Contains(StandardDataFormats.StorageItems))
+            {
+                e.AcceptedOperation = DataPackageOperation.Copy;
+            }
         }
 
-        private void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        /// <summary>
+        /// 素体三面図画像のドロップ処理
+        /// </summary>
+        private async void BodySheetImagePathTextBox_Drop(object sender, DragEventArgs e)
         {
-            // キャンセル：nullを返す
+            if (e.DataView.Contains(StandardDataFormats.StorageItems))
+            {
+                var items = await e.DataView.GetStorageItemsAsync();
+                if (items.Count > 0)
+                {
+                    var file = items[0] as Windows.Storage.StorageFile;
+                    if (file != null && IsImageFile(file.Name))
+                    {
+                        _viewModel.BodySheetImagePath = file.Path;
+                        BodySheetImagePathTextBox.Text = file.Path;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 参考衣装画像のドロップ処理
+        /// </summary>
+        private async void ReferenceOutfitImagePathTextBox_Drop(object sender, DragEventArgs e)
+        {
+            if (e.DataView.Contains(StandardDataFormats.StorageItems))
+            {
+                var items = await e.DataView.GetStorageItemsAsync();
+                if (items.Count > 0)
+                {
+                    var file = items[0] as Windows.Storage.StorageFile;
+                    if (file != null && IsImageFile(file.Name))
+                    {
+                        _viewModel.ReferenceOutfitImagePath = file.Path;
+                        ReferenceOutfitImagePathTextBox.Text = file.Path;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 画像ファイルかどうかを判定
+        /// </summary>
+        private static bool IsImageFile(string fileName)
+        {
+            var ext = System.IO.Path.GetExtension(fileName).ToLowerInvariant();
+            return ext is ".png" or ".jpg" or ".jpeg" or ".gif" or ".webp";
+        }
+
+        // ============================================================
+        // ウィンドウボタン
+        // ============================================================
+
+        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        {
+            ResultSettings = _viewModel;
+            _taskCompletionSource?.SetResult(true);
+            this.Close();
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
             ResultSettings = null;
+            _taskCompletionSource?.SetResult(false);
+            this.Close();
+        }
+
+        private void OnWindowClosed(object sender, WindowEventArgs args)
+        {
+            _taskCompletionSource?.TrySetResult(false);
         }
     }
 }
