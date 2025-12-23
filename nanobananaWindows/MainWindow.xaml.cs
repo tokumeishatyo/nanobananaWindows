@@ -92,6 +92,9 @@ namespace nanobananaWindows
                 case OutputType.Outfit:
                     await OpenOutfitSettingsDialogAsync();
                     break;
+                case OutputType.Pose:
+                    await OpenPoseSettingsDialogAsync();
+                    break;
                 // TODO: 他の出力タイプのダイアログを追加
                 default:
                     // 未実装の出力タイプ
@@ -157,6 +160,24 @@ namespace nanobananaWindows
             {
                 // 適用された設定を保存
                 _viewModel.OutfitSettings = dialog.ResultSettings;
+                UpdateSettingsStatus();
+            }
+        }
+
+        /// <summary>
+        /// ポーズの詳細設定ダイアログを開く
+        /// </summary>
+        private async System.Threading.Tasks.Task OpenPoseSettingsDialogAsync()
+        {
+            var dialog = new PoseSettingsDialog(this, _viewModel.PoseSettings);
+            dialog.XamlRoot = this.Content.XamlRoot;
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary && dialog.ResultSettings != null)
+            {
+                // 適用された設定を保存
+                _viewModel.PoseSettings = dialog.ResultSettings;
                 UpdateSettingsStatus();
             }
         }

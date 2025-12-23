@@ -1,0 +1,148 @@
+<!-- rule.mdを読むこと -->
+<ContentDialog
+    x:Class="nanobananaWindows.Views.Settings.PoseSettingsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="ポーズ 詳細設定"
+    PrimaryButtonText="適用"
+    SecondaryButtonText="キャンセル"
+    DefaultButton="Primary"
+    MinWidth="700"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="750">
+        <StackPanel Spacing="16" MinWidth="650">
+            <!-- ポーズプリセット -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="4" Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="ポーズプリセット" FontWeight="SemiBold"/>
+                    <TextBlock Text="よく使うポーズを選択すると動作説明が自動入力されます"
+                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+                    <!-- プリセット選択とポーズキャプチャ -->
+                    <StackPanel Orientation="Horizontal" Spacing="20">
+                        <ComboBox x:Name="PosePresetComboBox"
+                                  Width="200"
+                                  SelectionChanged="PosePresetComboBox_SelectionChanged"/>
+                        <CheckBox x:Name="UsePoseCaptureCheckBox"
+                                  Content="参考画像のポーズをキャプチャ"
+                                  Checked="UsePoseCaptureCheckBox_Changed"
+                                  Unchecked="UsePoseCaptureCheckBox_Changed"/>
+                    </StackPanel>
+
+                    <!-- ポーズ参考画像 -->
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="ポーズ参考画像:" FontSize="12"/>
+                        <TextBox x:Name="PoseReferenceImagePathTextBox"
+                                 PlaceholderText="画像ファイルをドロップ、またはパスを入力..."
+                                 IsEnabled="False"
+                                 AllowDrop="True"
+                                 DragOver="ImagePathTextBox_DragOver"
+                                 Drop="PoseReferenceImagePathTextBox_Drop"
+                                 TextChanged="PoseReferenceImagePathTextBox_TextChanged"/>
+                    </StackPanel>
+
+                    <TextBlock Text="※ 参考画像の著作権はユーザー責任です"
+                               FontSize="11" Foreground="Orange"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 入力画像（衣装着用三面図） -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="4" Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="入力画像（衣装着用三面図）" FontWeight="SemiBold"/>
+                    <TextBlock Text="衣装着用三面図、または任意のキャラ画像を指定"
+                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBox x:Name="OutfitSheetImagePathTextBox"
+                             PlaceholderText="画像ファイルをドロップ、またはパスを入力..."
+                             AllowDrop="True"
+                             DragOver="ImagePathTextBox_DragOver"
+                             Drop="OutfitSheetImagePathTextBox_Drop"
+                             TextChanged="OutfitSheetImagePathTextBox_TextChanged"/>
+                    <TextBlock Text="※ 顔・衣装の同一性は常に保持されます（ポーズのみ変更）"
+                               FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 向き・表情 -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="4" Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="向き・表情" FontWeight="SemiBold"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="24">
+                        <!-- 目線 -->
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="目線:" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="EyeLineComboBox"
+                                      Width="100"
+                                      SelectionChanged="EyeLineComboBox_SelectionChanged"/>
+                        </StackPanel>
+
+                        <!-- 表情 -->
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="表情:" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="ExpressionComboBox"
+                                      Width="100"
+                                      SelectionChanged="ExpressionComboBox_SelectionChanged"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- 表情補足 -->
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="表情補足:" FontSize="12"/>
+                        <TextBox x:Name="ExpressionDetailTextBox"
+                                 PlaceholderText="例：苦笑い、泣き笑い、ニヤリ..."
+                                 TextChanged="ExpressionDetailTextBox_TextChanged"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- 動作説明 -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="4" Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="動作説明" FontWeight="SemiBold"/>
+                    <TextBlock Text="ポーズや動作を自由に記述してください（日本語/英語どちらでも可）"
+                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBox x:Name="ActionDescriptionTextBox"
+                             PlaceholderText="例：椅子に座ってコーヒーを飲む、手を振る、考え込むポーズ..."
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             Height="60"
+                             TextChanged="ActionDescriptionTextBox_TextChanged"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ビジュアル効果 -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="4" Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="ビジュアル効果" FontWeight="SemiBold"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="24">
+                        <CheckBox x:Name="IncludeEffectsCheckBox"
+                                  Content="エフェクトを描画する（合成用はOFF推奨）"
+                                  Checked="IncludeEffectsCheckBox_Changed"
+                                  Unchecked="IncludeEffectsCheckBox_Changed"/>
+
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="風の影響:" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="WindEffectComboBox"
+                                      Width="120"
+                                      SelectionChanged="WindEffectComboBox_SelectionChanged"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <CheckBox x:Name="TransparentBackgroundCheckBox"
+                              Content="背景を透過にする（合成用）"
+                              Checked="TransparentBackgroundCheckBox_Changed"
+                              Unchecked="TransparentBackgroundCheckBox_Changed"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>

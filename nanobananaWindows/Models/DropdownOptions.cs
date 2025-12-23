@@ -493,4 +493,170 @@ namespace nanobananaWindows.Models
             };
         }
     }
+
+    // ============================================================
+    // ポーズ（Step4）関連
+    // ============================================================
+
+    /// <summary>
+    /// ポーズプリセット
+    /// </summary>
+    public enum PosePreset
+    {
+        None,        // （プリセットなし）
+        Hadouken,    // 波動拳（かめはめ波）
+        SpeciumRay,  // スペシウム光線
+        RiderKick,   // ライダーキック
+        FingerBeam,  // 指先ビーム
+        Meditation   // 坐禅（瞑想）
+    }
+
+    public static class PosePresetExtensions
+    {
+        public static string GetDisplayName(this PosePreset preset)
+        {
+            return preset switch
+            {
+                PosePreset.None => "（プリセットなし）",
+                PosePreset.Hadouken => "波動拳（かめはめ波）",
+                PosePreset.SpeciumRay => "スペシウム光線",
+                PosePreset.RiderKick => "ライダーキック",
+                PosePreset.FingerBeam => "指先ビーム",
+                PosePreset.Meditation => "坐禅（瞑想）",
+                _ => preset.ToString()
+            };
+        }
+
+        /// <summary>
+        /// プリセットに対応する動作説明（英語）
+        /// </summary>
+        public static string GetDescription(this PosePreset preset)
+        {
+            return preset switch
+            {
+                PosePreset.None => "",
+                PosePreset.Hadouken => "Thrusting both palms forward at waist level, knees slightly bent, focusing energy between hands",
+                PosePreset.SpeciumRay => "Crossing arms in a plus sign shape (+) in front of chest, right hand vertical, left hand horizontal",
+                PosePreset.RiderKick => "Mid-air dynamic flying kick, one leg extended forward, body angled downward, floating in the air",
+                PosePreset.FingerBeam => "Pointing index finger forward, arm fully extended, other fingers closed, cool and composed expression",
+                PosePreset.Meditation => "Sitting cross-legged in lotus position, hands resting on knees, eyes closed, meditative posture",
+                _ => ""
+            };
+        }
+
+        /// <summary>
+        /// プリセットに対応するデフォルト風効果
+        /// </summary>
+        public static WindEffect GetDefaultWindEffect(this PosePreset preset)
+        {
+            return preset switch
+            {
+                PosePreset.Hadouken or PosePreset.SpeciumRay or PosePreset.RiderKick => WindEffect.FromFront,
+                _ => WindEffect.None
+            };
+        }
+    }
+
+    /// <summary>
+    /// 目線方向
+    /// </summary>
+    public enum EyeLine
+    {
+        Front, // 前を見る
+        Up,    // 上を見る
+        Down   // 下を見る
+    }
+
+    public static class EyeLineExtensions
+    {
+        public static string GetDisplayName(this EyeLine eyeLine)
+        {
+            return eyeLine switch
+            {
+                EyeLine.Front => "前を見る",
+                EyeLine.Up => "上を見る",
+                EyeLine.Down => "下を見る",
+                _ => eyeLine.ToString()
+            };
+        }
+    }
+
+    /// <summary>
+    /// ポーズ表情
+    /// </summary>
+    public enum PoseExpression
+    {
+        Neutral, // 無表情
+        Smile,   // 笑顔
+        Angry,   // 怒り
+        Crying,  // 泣き
+        Shy      // 恥じらい
+    }
+
+    public static class PoseExpressionExtensions
+    {
+        public static string GetDisplayName(this PoseExpression expression)
+        {
+            return expression switch
+            {
+                PoseExpression.Neutral => "無表情",
+                PoseExpression.Smile => "笑顔",
+                PoseExpression.Angry => "怒り",
+                PoseExpression.Crying => "泣き",
+                PoseExpression.Shy => "恥じらい",
+                _ => expression.ToString()
+            };
+        }
+
+        public static string GetPrompt(this PoseExpression expression)
+        {
+            return expression switch
+            {
+                PoseExpression.Neutral => "neutral expression, calm face, no emotion",
+                PoseExpression.Smile => "smiling, happy expression, cheerful face",
+                PoseExpression.Angry => "angry expression, furious face, frowning",
+                PoseExpression.Crying => "crying, tearful expression, sad face with tears",
+                PoseExpression.Shy => "shy expression, blushing, embarrassed face",
+                _ => ""
+            };
+        }
+    }
+
+    /// <summary>
+    /// 風の効果
+    /// </summary>
+    public enum WindEffect
+    {
+        None,       // なし
+        FromFront,  // 前からの風
+        FromBehind, // 後ろからの風
+        FromSide    // 横からの風
+    }
+
+    public static class WindEffectExtensions
+    {
+        public static string GetDisplayName(this WindEffect effect)
+        {
+            return effect switch
+            {
+                WindEffect.None => "なし",
+                WindEffect.FromFront => "前からの風",
+                WindEffect.FromBehind => "後ろからの風",
+                WindEffect.FromSide => "横からの風",
+                _ => effect.ToString()
+            };
+        }
+
+        public static string GetPrompt(this WindEffect effect)
+        {
+            return effect switch
+            {
+                WindEffect.None => "",
+                WindEffect.FromFront => "Strong Wind from Front",
+                WindEffect.FromBehind => "Wind from Behind",
+                WindEffect.FromSide => "Side Wind",
+                _ => ""
+            };
+        }
+    }
 }
