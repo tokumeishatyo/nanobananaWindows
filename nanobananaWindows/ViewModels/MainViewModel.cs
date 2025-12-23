@@ -117,6 +117,22 @@ namespace nanobananaWindows.ViewModels
             }
         }
 
+        private SceneBuilderSettingsViewModel _sceneBuilderSettings = new();
+        /// <summary>
+        /// シーンビルダーの詳細設定
+        /// </summary>
+        public SceneBuilderSettingsViewModel SceneBuilderSettings
+        {
+            get => _sceneBuilderSettings;
+            set
+            {
+                if (SetProperty(ref _sceneBuilderSettings, value))
+                {
+                    OnPropertyChanged(nameof(SettingsStatusText));
+                }
+            }
+        }
+
         /// <summary>
         /// 現在の出力タイプの設定状態テキストを取得
         /// </summary>
@@ -128,6 +144,7 @@ namespace nanobananaWindows.ViewModels
                 OutputType.BodySheet => BodySheetSettings.HasSettings ? "設定済み" : "未設定",
                 OutputType.Outfit => OutfitSettings.HasSettings ? "設定済み" : "未設定",
                 OutputType.Pose => PoseSettings.HasSettings ? "設定済み" : "未設定",
+                OutputType.SceneBuilder => SceneBuilderSettings.HasSettings ? "設定済み" : "未設定",
                 // TODO: 他の出力タイプの設定状態を追加
                 _ => "未設定"
             };

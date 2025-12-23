@@ -95,6 +95,9 @@ namespace nanobananaWindows
                 case OutputType.Pose:
                     await OpenPoseSettingsDialogAsync();
                     break;
+                case OutputType.SceneBuilder:
+                    await OpenSceneBuilderSettingsDialogAsync();
+                    break;
                 // TODO: 他の出力タイプのダイアログを追加
                 default:
                     // 未実装の出力タイプ
@@ -178,6 +181,24 @@ namespace nanobananaWindows
             {
                 // 適用された設定を保存
                 _viewModel.PoseSettings = dialog.ResultSettings;
+                UpdateSettingsStatus();
+            }
+        }
+
+        /// <summary>
+        /// シーンビルダーの詳細設定ダイアログを開く
+        /// </summary>
+        private async System.Threading.Tasks.Task OpenSceneBuilderSettingsDialogAsync()
+        {
+            var dialog = new SceneBuilderSettingsDialog(this, _viewModel.SceneBuilderSettings);
+            dialog.XamlRoot = this.Content.XamlRoot;
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary && dialog.ResultSettings != null)
+            {
+                // 適用された設定を保存
+                _viewModel.SceneBuilderSettings = dialog.ResultSettings;
                 UpdateSettingsStatus();
             }
         }
