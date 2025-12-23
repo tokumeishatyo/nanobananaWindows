@@ -266,4 +266,231 @@ namespace nanobananaWindows.Models
             };
         }
     }
+
+    // ============================================================
+    // 衣装着用（Step3）関連
+    // ============================================================
+
+    /// <summary>
+    /// 衣装カテゴリ
+    /// </summary>
+    public enum OutfitCategory
+    {
+        Auto,       // おまかせ
+        Model,      // モデル用
+        Suit,       // スーツ
+        Swimsuit,   // 水着
+        Casual,     // カジュアル
+        Uniform,    // 制服
+        Formal,     // ドレス/フォーマル
+        Sports,     // スポーツ
+        Japanese,   // 和服
+        Workwear    // 作業着/職業服
+    }
+
+    public static class OutfitCategoryExtensions
+    {
+        public static string GetDisplayName(this OutfitCategory category)
+        {
+            return category switch
+            {
+                OutfitCategory.Auto => "おまかせ",
+                OutfitCategory.Model => "モデル用",
+                OutfitCategory.Suit => "スーツ",
+                OutfitCategory.Swimsuit => "水着",
+                OutfitCategory.Casual => "カジュアル",
+                OutfitCategory.Uniform => "制服",
+                OutfitCategory.Formal => "ドレス/フォーマル",
+                OutfitCategory.Sports => "スポーツ",
+                OutfitCategory.Japanese => "和服",
+                OutfitCategory.Workwear => "作業着/職業服",
+                _ => category.ToString()
+            };
+        }
+
+        /// <summary>
+        /// カテゴリに対応する形状リストを取得
+        /// </summary>
+        public static string[] GetShapes(this OutfitCategory category)
+        {
+            return category switch
+            {
+                OutfitCategory.Auto => new[] { "おまかせ" },
+                OutfitCategory.Model => new[] { "おまかせ", "白レオタード", "グレーレオタード", "黒レオタード",
+                    "白下着", "Tシャツ+短パン", "タンクトップ+短パン" },
+                OutfitCategory.Suit => new[] { "おまかせ", "パンツスタイル", "タイトスカート", "プリーツスカート",
+                    "ミニスカート", "スリーピース", "ダブルスーツ", "タキシード" },
+                OutfitCategory.Swimsuit => new[] { "おまかせ", "三角ビキニ", "ホルターネック", "バンドゥ",
+                    "ワンピース", "ハイレグ", "パレオ付き", "サーフパンツ", "競泳パンツ" },
+                OutfitCategory.Casual => new[] { "おまかせ", "Tシャツ+デニム", "ワンピース", "ブラウス+スカート",
+                    "パーカー", "カーディガン", "シャツ+チノパン", "ポロシャツ", "レザージャケット" },
+                OutfitCategory.Uniform => new[] { "おまかせ", "セーラー服", "ブレザー", "メイド服", "ナース服",
+                    "OL制服", "学ラン", "詰襟", "警察官", "軍服" },
+                OutfitCategory.Formal => new[] { "おまかせ", "イブニングドレス", "カクテルドレス", "ウェディングドレス",
+                    "チャイナドレス", "サマードレス", "タキシード", "モーニング", "燕尾服" },
+                OutfitCategory.Sports => new[] { "おまかせ", "テニスウェア", "体操服", "レオタード", "ヨガウェア",
+                    "競泳水着", "サッカーユニフォーム", "野球ユニフォーム", "バスケユニフォーム", "柔道着" },
+                OutfitCategory.Japanese => new[] { "おまかせ", "着物", "浴衣", "振袖", "巫女服",
+                    "袴", "紋付袴", "羽織", "甚平" },
+                OutfitCategory.Workwear => new[] { "おまかせ", "白衣", "作業着", "シェフコート", "消防服", "建設作業員" },
+                _ => new[] { "おまかせ" }
+            };
+        }
+    }
+
+    /// <summary>
+    /// 衣装カラー
+    /// </summary>
+    public enum OutfitColor
+    {
+        Auto,       // おまかせ
+        Black,      // 黒
+        White,      // 白
+        Navy,       // 紺
+        Red,        // 赤
+        Pink,       // ピンク
+        Blue,       // 青
+        LightBlue,  // 水色
+        Green,      // 緑
+        Yellow,     // 黄
+        Orange,     // オレンジ
+        Purple,     // 紫
+        Beige,      // ベージュ
+        Gray,       // グレー
+        Gold,       // ゴールド
+        Silver      // シルバー
+    }
+
+    public static class OutfitColorExtensions
+    {
+        public static string GetDisplayName(this OutfitColor color)
+        {
+            return color switch
+            {
+                OutfitColor.Auto => "おまかせ",
+                OutfitColor.Black => "黒",
+                OutfitColor.White => "白",
+                OutfitColor.Navy => "紺",
+                OutfitColor.Red => "赤",
+                OutfitColor.Pink => "ピンク",
+                OutfitColor.Blue => "青",
+                OutfitColor.LightBlue => "水色",
+                OutfitColor.Green => "緑",
+                OutfitColor.Yellow => "黄",
+                OutfitColor.Orange => "オレンジ",
+                OutfitColor.Purple => "紫",
+                OutfitColor.Beige => "ベージュ",
+                OutfitColor.Gray => "グレー",
+                OutfitColor.Gold => "ゴールド",
+                OutfitColor.Silver => "シルバー",
+                _ => color.ToString()
+            };
+        }
+    }
+
+    /// <summary>
+    /// 衣装柄
+    /// </summary>
+    public enum OutfitPattern
+    {
+        Auto,       // おまかせ
+        Solid,      // 無地
+        Stripe,     // ストライプ
+        Check,      // チェック
+        Floral,     // 花柄
+        Dot,        // ドット
+        Border,     // ボーダー
+        Tropical,   // トロピカル
+        Lace,       // レース
+        Camouflage, // 迷彩
+        Animal      // アニマル柄
+    }
+
+    public static class OutfitPatternExtensions
+    {
+        public static string GetDisplayName(this OutfitPattern pattern)
+        {
+            return pattern switch
+            {
+                OutfitPattern.Auto => "おまかせ",
+                OutfitPattern.Solid => "無地",
+                OutfitPattern.Stripe => "ストライプ",
+                OutfitPattern.Check => "チェック",
+                OutfitPattern.Floral => "花柄",
+                OutfitPattern.Dot => "ドット",
+                OutfitPattern.Border => "ボーダー",
+                OutfitPattern.Tropical => "トロピカル",
+                OutfitPattern.Lace => "レース",
+                OutfitPattern.Camouflage => "迷彩",
+                OutfitPattern.Animal => "アニマル柄",
+                _ => pattern.ToString()
+            };
+        }
+    }
+
+    /// <summary>
+    /// 衣装スタイル（印象）
+    /// </summary>
+    public enum OutfitFashionStyle
+    {
+        Auto,         // おまかせ
+        Mature,       // 大人っぽい
+        Cute,         // 可愛い
+        Sexy,         // セクシー
+        Cool,         // クール
+        Modest,       // 清楚
+        Sporty,       // スポーティ
+        Gorgeous,     // ゴージャス
+        Wild,         // ワイルド
+        Intellectual, // 知的
+        Dandy,        // ダンディ
+        Casual        // カジュアル
+    }
+
+    public static class OutfitFashionStyleExtensions
+    {
+        public static string GetDisplayName(this OutfitFashionStyle style)
+        {
+            return style switch
+            {
+                OutfitFashionStyle.Auto => "おまかせ",
+                OutfitFashionStyle.Mature => "大人っぽい",
+                OutfitFashionStyle.Cute => "可愛い",
+                OutfitFashionStyle.Sexy => "セクシー",
+                OutfitFashionStyle.Cool => "クール",
+                OutfitFashionStyle.Modest => "清楚",
+                OutfitFashionStyle.Sporty => "スポーティ",
+                OutfitFashionStyle.Gorgeous => "ゴージャス",
+                OutfitFashionStyle.Wild => "ワイルド",
+                OutfitFashionStyle.Intellectual => "知的",
+                OutfitFashionStyle.Dandy => "ダンディ",
+                OutfitFashionStyle.Casual => "カジュアル",
+                _ => style.ToString()
+            };
+        }
+    }
+
+    /// <summary>
+    /// フィットモード（参考画像モード用）
+    /// </summary>
+    public enum FitMode
+    {
+        BodyPriority,   // 素体優先
+        OutfitPriority, // 衣装優先
+        Hybrid          // ハイブリッド
+    }
+
+    public static class FitModeExtensions
+    {
+        public static string GetDisplayName(this FitMode mode)
+        {
+            return mode switch
+            {
+                FitMode.BodyPriority => "素体優先",
+                FitMode.OutfitPriority => "衣装優先",
+                FitMode.Hybrid => "ハイブリッド",
+                _ => mode.ToString()
+            };
+        }
+    }
 }

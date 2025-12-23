@@ -89,6 +89,9 @@ namespace nanobananaWindows
                 case OutputType.BodySheet:
                     await OpenBodySheetSettingsDialogAsync();
                     break;
+                case OutputType.Outfit:
+                    await OpenOutfitSettingsDialogAsync();
+                    break;
                 // TODO: 他の出力タイプのダイアログを追加
                 default:
                     // 未実装の出力タイプ
@@ -136,6 +139,24 @@ namespace nanobananaWindows
             {
                 // 適用された設定を保存
                 _viewModel.BodySheetSettings = dialog.ResultSettings;
+                UpdateSettingsStatus();
+            }
+        }
+
+        /// <summary>
+        /// 衣装着用の詳細設定ダイアログを開く
+        /// </summary>
+        private async System.Threading.Tasks.Task OpenOutfitSettingsDialogAsync()
+        {
+            var dialog = new OutfitSettingsDialog(this, _viewModel.OutfitSettings);
+            dialog.XamlRoot = this.Content.XamlRoot;
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary && dialog.ResultSettings != null)
+            {
+                // 適用された設定を保存
+                _viewModel.OutfitSettings = dialog.ResultSettings;
                 UpdateSettingsStatus();
             }
         }
