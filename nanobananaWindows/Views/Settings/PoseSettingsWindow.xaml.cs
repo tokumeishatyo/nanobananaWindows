@@ -301,7 +301,7 @@ namespace nanobananaWindows.Views.Settings
         private void IncludeEffectsCheckBox_Changed(object sender, RoutedEventArgs e)
         {
             if (!_isInitialized) return;
-            _viewModel.IncludeEffects = IncludeEffectsCheckBox.IsChecked ?? true;
+            _viewModel.IncludeEffects = IncludeEffectsCheckBox.IsChecked ?? false;
         }
 
         private void WindEffectComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -316,7 +316,7 @@ namespace nanobananaWindows.Views.Settings
         private void TransparentBackgroundCheckBox_Changed(object sender, RoutedEventArgs e)
         {
             if (!_isInitialized) return;
-            _viewModel.TransparentBackground = TransparentBackgroundCheckBox.IsChecked ?? false;
+            _viewModel.TransparentBackground = TransparentBackgroundCheckBox.IsChecked ?? true;
         }
 
         // ============================================================
@@ -371,8 +371,36 @@ namespace nanobananaWindows.Views.Settings
         // ウィンドウボタン
         // ============================================================
 
-        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        private async void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
+            // 共通: 入力画像（衣装着用三面図）は必須
+            if (string.IsNullOrWhiteSpace(_viewModel.OutfitSheetImagePath))
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "入力エラー",
+                    Content = "入力画像（衣装着用三面図）を入力してください。",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
+                return;
+            }
+
+            // キャプチャモードの場合: ポーズ参考画像も必須
+            if (_viewModel.UsePoseCapture && string.IsNullOrWhiteSpace(_viewModel.PoseReferenceImagePath))
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "入力エラー",
+                    Content = "ポーズ参考画像を入力してください。",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
+                return;
+            }
+
             ResultSettings = _viewModel;
             _taskCompletionSource?.SetResult(true);
             this.Close();

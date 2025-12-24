@@ -438,6 +438,7 @@ namespace nanobananaWindows.ViewModels
                 OutputType.FaceSheet => ValidateFaceSheetSettings(),
                 OutputType.BodySheet => ValidateBodySheetSettings(),
                 OutputType.Outfit => ValidateOutfitSettings(),
+                OutputType.Pose => ValidatePoseSettings(),
                 // 他の出力タイプは順次実装
                 _ => null
             };
@@ -505,6 +506,33 @@ namespace nanobananaWindows.ViewModels
             if (errors.Count > 0)
             {
                 return $"衣装着用の必須項目が未入力です。\n\n以下の項目を入力してください：\n・{string.Join("\n・", errors)}";
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// ポーズ設定のバリデーション
+        /// </summary>
+        private string? ValidatePoseSettings()
+        {
+            var settings = PoseSettings;
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(settings.OutfitSheetImagePath))
+            {
+                errors.Add("入力画像（衣装着用三面図）");
+            }
+
+            // キャプチャモードの場合
+            if (settings.UsePoseCapture && string.IsNullOrWhiteSpace(settings.PoseReferenceImagePath))
+            {
+                errors.Add("ポーズ参考画像");
+            }
+
+            if (errors.Count > 0)
+            {
+                return $"ポーズの必須項目が未入力です。\n\n以下の項目を入力してください：\n・{string.Join("\n・", errors)}";
             }
 
             return null;

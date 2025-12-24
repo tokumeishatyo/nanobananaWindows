@@ -244,6 +244,37 @@ namespace nanobananaWindows.Services
             };
         }
 
+        /// <summary>
+        /// PoseExpressionのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this PoseExpression expression)
+        {
+            return expression switch
+            {
+                PoseExpression.Neutral => "neutral",
+                PoseExpression.Smile => "smile",
+                PoseExpression.Angry => "angry",
+                PoseExpression.Crying => "crying",
+                PoseExpression.Shy => "shy",
+                _ => "neutral"
+            };
+        }
+
+        /// <summary>
+        /// WindEffectのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this WindEffect effect)
+        {
+            return effect switch
+            {
+                WindEffect.None => "none",
+                WindEffect.FromFront => "from_front",
+                WindEffect.FromBehind => "from_behind",
+                WindEffect.FromSide => "from_side",
+                _ => "none"
+            };
+        }
+
         // ============================================================
         // シーンビルダー関連
         // ============================================================

@@ -27,7 +27,7 @@ namespace nanobananaWindows.Services
                 OutputType.BodySheet => GenerateBodySheetYaml(mainViewModel),
                 // 他の出力タイプは順次実装
                 OutputType.Outfit => GenerateOutfitYaml(mainViewModel),
-                OutputType.Pose => GeneratePlaceholderYaml("ポーズ", "04_pose.yaml"),
+                OutputType.Pose => GeneratePoseYaml(mainViewModel),
                 OutputType.SceneBuilder => GeneratePlaceholderYaml("シーンビルダー", "05_scene.yaml"),
                 OutputType.Background => GeneratePlaceholderYaml("背景生成", "06_background.yaml"),
                 OutputType.DecorativeText => GeneratePlaceholderYaml("装飾テキスト", "07_decorative_text.yaml"),
@@ -271,6 +271,111 @@ namespace nanobananaWindows.Services
                 parts.Add(settings.OutfitStyle.ToYamlValue());
 
             return parts.Count > 0 ? string.Join(", ", parts) : "auto";
+        }
+
+        /// <summary>
+        /// ポーズYAML生成（モードに応じてテンプレートを切り替え）
+        /// </summary>
+        private string GeneratePoseYaml(MainViewModel mainViewModel)
+        {
+            var settings = mainViewModel.PoseSettings;
+            if (settings == null || !settings.HasSettings)
+            {
+                return "# Error: ポーズの設定がありません\n# 詳細設定ボタンから設定を入力してください";
+            }
+
+            if (settings.UsePoseCapture)
+            {
+                // キャプチャモード
+                var variables = BuildPoseCaptureVariables(mainViewModel, settings);
+                return _templateEngine.Render("04_pose_capture.yaml", variables);
+            }
+            else
+            {
+                // プリセットモード
+                var variables = BuildPosePresetVariables(mainViewModel, settings);
+                return _templateEngine.Render("04_pose_preset.yaml", variables);
+            }
+        }
+
+        /// <summary>
+        /// プリセットモード用の変数辞書を構築
+        /// </summary>
+        private Dictionary<string, string> BuildPosePresetVariables(
+            MainViewModel mainViewModel,
+            PoseSettingsViewModel settings)
+        {
+            var authorName = mainViewModel.AuthorName?.Trim() ?? "";
+            var titleOverlayEnabled = mainViewModel.IncludeTitleInImage;
+            var (titlePosition, titleSize, authorPosition, authorSize) =
+                GetTitleOverlayPositions(titleOverlayEnabled, !string.IsNullOrEmpty(authorName));
+
+            return new Dictionary<string, string>
+            {
+                // ヘッダーパーシャル用
+                ["header_comment"] = "Pose Image (ポーズ画像 - プリセット)",
+                ["type"] = "character_design",
+                ["title"] = mainViewModel.Title ?? "",
+                ["author"] = authorName,
+                ["color_mode"] = mainViewModel.SelectedColorMode.ToYamlValue(),
+                ["output_style"] = mainViewModel.SelectedOutputStyle.ToYamlValue(),
+                ["aspect_ratio"] = mainViewModel.SelectedAspectRatio.ToYamlValue(),
+                ["title_overlay_enabled"] = titleOverlayEnabled ? "true" : "false",
+                ["title_position"] = titlePosition,
+                ["title_size"] = titleSize,
+                ["author_position"] = authorPosition,
+                ["author_size"] = authorSize,
+
+                // ポーズ（プリセット）固有
+                ["character_sheet"] = YamlUtilities.GetFileName(settings.OutfitSheetImagePath),
+                ["eye_line"] = settings.EyeLine.ToYamlValue(),
+                ["expression"] = settings.Expression.ToYamlValue(),
+                ["expression_detail"] = YamlUtilities.ConvertNewlinesToComma(settings.ExpressionDetail),
+                ["action_description"] = YamlUtilities.ConvertNewlinesToComma(settings.ActionDescription),
+                ["include_effects"] = settings.IncludeEffects ? "true" : "false",
+                ["wind_effect"] = settings.WindEffect.ToYamlValue(),
+                ["transparent_background"] = settings.TransparentBackground ? "true" : "false"
+            };
+        }
+
+        /// <summary>
+        /// キャプチャモード用の変数辞書を構築
+        /// </summary>
+        private Dictionary<string, string> BuildPoseCaptureVariables(
+            MainViewModel mainViewModel,
+            PoseSettingsViewModel settings)
+        {
+            var authorName = mainViewModel.AuthorName?.Trim() ?? "";
+            var titleOverlayEnabled = mainViewModel.IncludeTitleInImage;
+            var (titlePosition, titleSize, authorPosition, authorSize) =
+                GetTitleOverlayPositions(titleOverlayEnabled, !string.IsNullOrEmpty(authorName));
+
+            return new Dictionary<string, string>
+            {
+                // ヘッダーパーシャル用
+                ["header_comment"] = "Pose Image (ポーズ画像 - キャプチャ)",
+                ["type"] = "character_design",
+                ["title"] = mainViewModel.Title ?? "",
+                ["author"] = authorName,
+                ["color_mode"] = mainViewModel.SelectedColorMode.ToYamlValue(),
+                ["output_style"] = mainViewModel.SelectedOutputStyle.ToYamlValue(),
+                ["aspect_ratio"] = mainViewModel.SelectedAspectRatio.ToYamlValue(),
+                ["title_overlay_enabled"] = titleOverlayEnabled ? "true" : "false",
+                ["title_position"] = titlePosition,
+                ["title_size"] = titleSize,
+                ["author_position"] = authorPosition,
+                ["author_size"] = authorSize,
+
+                // ポーズ（キャプチャ）固有
+                ["pose_reference"] = YamlUtilities.GetFileName(settings.PoseReferenceImagePath),
+                ["character_sheet"] = YamlUtilities.GetFileName(settings.OutfitSheetImagePath),
+                ["eye_line"] = settings.EyeLine.ToYamlValue(),
+                ["expression"] = settings.Expression.ToYamlValue(),
+                ["expression_detail"] = YamlUtilities.ConvertNewlinesToComma(settings.ExpressionDetail),
+                ["include_effects"] = settings.IncludeEffects ? "true" : "false",
+                ["wind_effect"] = settings.WindEffect.ToYamlValue(),
+                ["transparent_background"] = settings.TransparentBackground ? "true" : "false"
+            };
         }
 
         /// <summary>

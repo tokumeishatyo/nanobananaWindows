@@ -32,9 +32,12 @@
                                       Unchecked="UsePoseCaptureCheckBox_Changed"/>
                         </StackPanel>
 
-                        <!-- ポーズ参考画像 -->
+                        <!-- ポーズ参考画像（キャプチャモード時必須） -->
                         <StackPanel Spacing="4">
-                            <TextBlock Text="ポーズ参考画像:" FontSize="12"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="ポーズ参考画像:" FontSize="12"/>
+                                <TextBlock Text=" *" Foreground="Red" FontSize="12"/>
+                            </StackPanel>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -62,11 +65,14 @@
                     </StackPanel>
                 </Border>
 
-                <!-- 入力画像（衣装着用三面図） -->
+                <!-- 入力画像（衣装着用三面図）（必須） -->
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         CornerRadius="4" Padding="12">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="入力画像（衣装着用三面図）" FontWeight="SemiBold"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="入力画像（衣装着用三面図）" FontWeight="SemiBold"/>
+                            <TextBlock Text=" *" Foreground="Red" FontWeight="SemiBold"/>
+                        </StackPanel>
                         <TextBlock Text="衣装着用三面図、または任意のキャラ画像を指定"
                                    FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         <Grid>

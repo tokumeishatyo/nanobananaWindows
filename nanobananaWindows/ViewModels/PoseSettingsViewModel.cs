@@ -137,9 +137,9 @@ namespace nanobananaWindows.ViewModels
         // ビジュアル効果
         // ============================================================
 
-        private bool _includeEffects = true;
+        private bool _includeEffects = false;
         /// <summary>
-        /// エフェクトを描画するか
+        /// エフェクトを描画するか（デフォルト: オフ）
         /// </summary>
         public bool IncludeEffects
         {
@@ -157,9 +157,9 @@ namespace nanobananaWindows.ViewModels
             set => SetProperty(ref _windEffect, value);
         }
 
-        private bool _transparentBackground = false;
+        private bool _transparentBackground = true;
         /// <summary>
-        /// 背景を透過にするか
+        /// 背景を透過にするか（デフォルト: オン）
         /// </summary>
         public bool TransparentBackground
         {
@@ -210,9 +210,9 @@ namespace nanobananaWindows.ViewModels
             Expression = PoseExpression.Neutral;
             ExpressionDetail = "";
             ActionDescription = "";
-            IncludeEffects = true;
+            IncludeEffects = false;
             WindEffect = WindEffect.None;
-            TransparentBackground = false;
+            TransparentBackground = true;
         }
     }
 }
