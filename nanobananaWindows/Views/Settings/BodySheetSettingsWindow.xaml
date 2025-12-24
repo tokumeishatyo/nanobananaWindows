@@ -13,9 +13,12 @@
         <!-- メインコンテンツ -->
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="24,16,24,16">
             <StackPanel Spacing="16" MinWidth="450">
-                <!-- 顔三面図の画像パス -->
+                <!-- 顔三面図の画像パス（必須） -->
                 <StackPanel Spacing="4">
-                    <TextBlock Text="顔三面図の画像パス" FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="顔三面図の画像パス" FontWeight="SemiBold"/>
+                        <TextBlock Text=" *" Foreground="Red" FontWeight="SemiBold"/>
+                    </StackPanel>
                     <TextBlock Text="※Step1で生成した顔三面図を指定"
                                FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     <Grid>

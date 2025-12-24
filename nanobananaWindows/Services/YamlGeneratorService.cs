@@ -24,8 +24,8 @@ namespace nanobananaWindows.Services
             return outputType switch
             {
                 OutputType.FaceSheet => GenerateFaceSheetYaml(mainViewModel),
+                OutputType.BodySheet => GenerateBodySheetYaml(mainViewModel),
                 // 他の出力タイプは順次実装
-                OutputType.BodySheet => GeneratePlaceholderYaml("素体三面図", "02_body_sheet.yaml"),
                 OutputType.Outfit => GeneratePlaceholderYaml("衣装着用", "03_outfit.yaml"),
                 OutputType.Pose => GeneratePlaceholderYaml("ポーズ", "04_pose.yaml"),
                 OutputType.SceneBuilder => GeneratePlaceholderYaml("シーンビルダー", "05_scene.yaml"),
@@ -91,6 +91,58 @@ namespace nanobananaWindows.Services
                 ["name"] = settings.CharacterName ?? "",
                 ["reference_sheet"] = YamlUtilities.GetFileName(settings.ReferenceImagePath),
                 ["description"] = YamlUtilities.ConvertNewlinesToComma(settings.AppearanceDescription)
+            };
+        }
+
+        /// <summary>
+        /// 素体三面図YAML生成
+        /// </summary>
+        private string GenerateBodySheetYaml(MainViewModel mainViewModel)
+        {
+            var settings = mainViewModel.BodySheetSettings;
+            if (settings == null || !settings.HasSettings)
+            {
+                return "# Error: 素体三面図の設定がありません\n# 詳細設定ボタンから設定を入力してください";
+            }
+
+            var variables = BuildBodySheetVariables(mainViewModel, settings);
+            return _templateEngine.Render("02_body_sheet.yaml", variables);
+        }
+
+        /// <summary>
+        /// 素体三面図用の変数辞書を構築
+        /// </summary>
+        private Dictionary<string, string> BuildBodySheetVariables(
+            MainViewModel mainViewModel,
+            BodySheetSettingsViewModel settings)
+        {
+            var authorName = mainViewModel.AuthorName?.Trim() ?? "";
+            var titleOverlayEnabled = mainViewModel.IncludeTitleInImage;
+            var (titlePosition, titleSize, authorPosition, authorSize) =
+                GetTitleOverlayPositions(titleOverlayEnabled, !string.IsNullOrEmpty(authorName));
+
+            return new Dictionary<string, string>
+            {
+                // ヘッダーパーシャル用
+                ["header_comment"] = "Body Reference Sheet (素体三面図)",
+                ["type"] = "character_design",
+                ["title"] = mainViewModel.Title ?? "",
+                ["author"] = authorName,
+                ["color_mode"] = mainViewModel.SelectedColorMode.ToYamlValue(),
+                ["output_style"] = mainViewModel.SelectedOutputStyle.ToYamlValue(),
+                ["aspect_ratio"] = mainViewModel.SelectedAspectRatio.ToYamlValue(),
+                ["title_overlay_enabled"] = titleOverlayEnabled ? "true" : "false",
+                ["title_position"] = titlePosition,
+                ["title_size"] = titleSize,
+                ["author_position"] = authorPosition,
+                ["author_size"] = authorSize,
+
+                // 素体三面図固有
+                ["face_sheet"] = YamlUtilities.GetFileName(settings.FaceSheetImagePath),
+                ["body_type"] = settings.BodyTypePreset.ToYamlValue(),
+                ["bust"] = settings.BustFeature.ToYamlValue(),
+                ["render_type"] = settings.BodyRenderType.ToYamlValue(),
+                ["additional_notes"] = YamlUtilities.ConvertNewlinesToComma(settings.AdditionalDescription)
             };
         }
 

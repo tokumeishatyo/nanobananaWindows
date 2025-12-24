@@ -436,6 +436,7 @@ namespace nanobananaWindows.ViewModels
             return SelectedOutputType switch
             {
                 OutputType.FaceSheet => ValidateFaceSheetSettings(),
+                OutputType.BodySheet => ValidateBodySheetSettings(),
                 // 他の出力タイプは順次実装
                 _ => null
             };
@@ -461,6 +462,21 @@ namespace nanobananaWindows.ViewModels
             if (errors.Count > 0)
             {
                 return $"顔三面図の必須項目が未入力です。\n\n以下の項目を入力してください：\n・{string.Join("\n・", errors)}";
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 素体三面図設定のバリデーション
+        /// </summary>
+        private string? ValidateBodySheetSettings()
+        {
+            var settings = BodySheetSettings;
+
+            if (string.IsNullOrWhiteSpace(settings.FaceSheetImagePath))
+            {
+                return "素体三面図の必須項目が未入力です。\n\n顔三面図の画像パスを入力してください。";
             }
 
             return null;

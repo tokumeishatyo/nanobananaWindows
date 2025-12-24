@@ -235,8 +235,22 @@ namespace nanobananaWindows.Views.Settings
         // ウィンドウボタン
         // ============================================================
 
-        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        private async void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
+            // 必須項目チェック（顔三面図の画像パスのみ必須）
+            if (string.IsNullOrWhiteSpace(_viewModel.FaceSheetImagePath))
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "入力エラー",
+                    Content = "顔三面図の画像パスを入力してください。",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
+                return;
+            }
+
             ResultSettings = _viewModel;
             _taskCompletionSource?.SetResult(true);
             this.Close();
