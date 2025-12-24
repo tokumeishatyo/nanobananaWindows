@@ -380,11 +380,6 @@ namespace nanobananaWindows
             // TODO: 漫画ページコンポーザーを開く
         }
 
-        private void ImageToolButton_Click(object sender, RoutedEventArgs e)
-        {
-            // TODO: 画像ツールを開く
-        }
-
         // ============================================================
         // 中央カラム: API設定
         // ============================================================

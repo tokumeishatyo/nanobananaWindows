@@ -149,10 +149,6 @@
                         <Button x:Name="MangaComposerButton" Content="漫画ページコンポーザー"
                                 HorizontalAlignment="Stretch"
                                 Click="MangaComposerButton_Click"/>
-
-                        <Button x:Name="ImageToolButton" Content="画像ツール（背景透過）"
-                                HorizontalAlignment="Stretch"
-                                Click="ImageToolButton_Click"/>
                     </StackPanel>
                 </Border>
 
