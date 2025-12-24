@@ -292,6 +292,81 @@ namespace nanobananaWindows.Services
             };
         }
 
+        /// <summary>
+        /// LightingMoodのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this LightingMood mood)
+        {
+            return mood switch
+            {
+                LightingMood.Morning => "Morning Sunlight",
+                LightingMood.Sunset => "Sunset",
+                LightingMood.SummerNoon => "Summer Noon",
+                LightingMood.Night => "Night",
+                LightingMood.Custom => "custom",
+                _ => "Morning Sunlight"
+            };
+        }
+
+        /// <summary>
+        /// StoryLayoutのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this StoryLayout layout)
+        {
+            return layout switch
+            {
+                StoryLayout.SideBySide => "Side by Side (Walking)",
+                StoryLayout.FaceToFace => "Face to Face (Table)",
+                StoryLayout.CenterListener => "Center & Listener",
+                StoryLayout.Custom => "custom",
+                _ => "Side by Side (Walking)"
+            };
+        }
+
+        /// <summary>
+        /// StoryDistanceのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this StoryDistance distance)
+        {
+            return distance switch
+            {
+                StoryDistance.Close => "Close Friends",
+                StoryDistance.Normal => "Normal",
+                StoryDistance.Distant => "Distant",
+                _ => "Close Friends"
+            };
+        }
+
+        /// <summary>
+        /// NarrationPositionのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this NarrationPosition position)
+        {
+            return position switch
+            {
+                NarrationPosition.TopHorizontal => "Top Horizontal",
+                NarrationPosition.BottomHorizontal => "Bottom Horizontal",
+                NarrationPosition.LeftVertical => "Left Vertical",
+                NarrationPosition.RightVertical => "Right Vertical",
+                NarrationPosition.Auto => "Auto",
+                _ => "Auto"
+            };
+        }
+
+        /// <summary>
+        /// TextOverlayLayerのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this TextOverlayLayer layer)
+        {
+            return layer switch
+            {
+                TextOverlayLayer.Frontmost => "Frontmost (Above Characters)",
+                TextOverlayLayer.BehindCharacters => "Behind Characters",
+                TextOverlayLayer.AboveBackground => "Above Background Only",
+                _ => "Frontmost (Above Characters)"
+            };
+        }
+
         // ============================================================
         // 装飾テキスト関連
         // ============================================================

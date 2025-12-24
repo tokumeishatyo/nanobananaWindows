@@ -28,7 +28,7 @@ namespace nanobananaWindows.Services
                 // 他の出力タイプは順次実装
                 OutputType.Outfit => GenerateOutfitYaml(mainViewModel),
                 OutputType.Pose => GeneratePoseYaml(mainViewModel),
-                OutputType.SceneBuilder => GeneratePlaceholderYaml("シーンビルダー", "05_scene.yaml"),
+                OutputType.SceneBuilder => GenerateSceneBuilderYaml(mainViewModel),
                 OutputType.Background => GeneratePlaceholderYaml("背景生成", "06_background.yaml"),
                 OutputType.DecorativeText => GeneratePlaceholderYaml("装飾テキスト", "07_decorative_text.yaml"),
                 OutputType.FourPanelManga => GeneratePlaceholderYaml("4コマ漫画", "08_four_panel.yaml"),
@@ -376,6 +376,149 @@ namespace nanobananaWindows.Services
                 ["wind_effect"] = settings.WindEffect.ToYamlValue(),
                 ["transparent_background"] = settings.TransparentBackground ? "true" : "false"
             };
+        }
+
+        /// <summary>
+        /// シーンビルダーYAML生成（ストーリーシーン）
+        /// </summary>
+        private string GenerateSceneBuilderYaml(MainViewModel mainViewModel)
+        {
+            var settings = mainViewModel.SceneBuilderSettings;
+            if (settings == null || !settings.HasSettings)
+            {
+                return "# Error: シーンビルダーの設定がありません\n# 詳細設定ボタンから設定を入力してください";
+            }
+
+            var variables = BuildSceneBuilderVariables(mainViewModel, settings);
+            return _templateEngine.Render("05_scene_story.yaml", variables);
+        }
+
+        /// <summary>
+        /// シーンビルダー用の変数辞書を構築
+        /// </summary>
+        private Dictionary<string, string> BuildSceneBuilderVariables(
+            MainViewModel mainViewModel,
+            SceneBuilderSettingsViewModel settings)
+        {
+            var authorName = mainViewModel.AuthorName?.Trim() ?? "";
+            var titleOverlayEnabled = mainViewModel.IncludeTitleInImage;
+            var (titlePosition, titleSize, authorPosition, authorSize) =
+                GetTitleOverlayPositions(titleOverlayEnabled, !string.IsNullOrEmpty(authorName));
+
+            var variables = new Dictionary<string, string>
+            {
+                // ヘッダーパーシャル用
+                ["header_comment"] = "Story Scene Composition (シーンビルダー - ストーリー)",
+                ["type"] = "scene_composition",
+                ["title"] = mainViewModel.Title ?? "",
+                ["author"] = authorName,
+                ["color_mode"] = mainViewModel.SelectedColorMode.ToYamlValue(),
+                ["output_style"] = mainViewModel.SelectedOutputStyle.ToYamlValue(),
+                ["aspect_ratio"] = mainViewModel.SelectedAspectRatio.ToYamlValue(),
+                ["title_overlay_enabled"] = titleOverlayEnabled ? "true" : "false",
+                ["title_position"] = titlePosition,
+                ["title_size"] = titleSize,
+                ["author_position"] = authorPosition,
+                ["author_size"] = authorSize,
+
+                // 背景設定
+                ["background_source_type"] = settings.BackgroundSourceType.ToYamlValue(),
+                ["background_image"] = YamlUtilities.GetFileName(settings.BackgroundImagePath),
+                ["background_description"] = YamlUtilities.ConvertNewlinesToComma(settings.BackgroundDescription),
+                ["blur_amount"] = ((int)settings.StoryBlurAmount).ToString(),
+                ["lighting_mood"] = GetLightingMoodValue(settings),
+
+                // 配置設定
+                ["layout_type"] = GetLayoutTypeValue(settings),
+                ["distance"] = settings.StoryDistance.ToYamlValue(),
+
+                // キャラクター人数
+                ["character_count"] = settings.StoryCharacterCount.GetIntValue().ToString()
+            };
+
+            // キャラクター1～5
+            int charCount = settings.StoryCharacterCount.GetIntValue();
+            for (int i = 0; i < 5; i++)
+            {
+                string prefix = $"character_{i + 1}";
+                if (i < charCount)
+                {
+                    var character = settings.StoryCharacters[i];
+                    variables[$"{prefix}_image"] = YamlUtilities.GetFileName(character.ImagePath);
+                    variables[$"{prefix}_expression"] = character.Expression ?? "";
+                    variables[$"{prefix}_traits"] = character.Traits ?? "";
+                    variables[$"{prefix}_dialogue"] = settings.StoryDialogues[i] ?? "";
+                }
+                else
+                {
+                    // 使用しないキャラクター枠は空文字
+                    variables[$"{prefix}_image"] = "";
+                    variables[$"{prefix}_expression"] = "";
+                    variables[$"{prefix}_traits"] = "";
+                    variables[$"{prefix}_dialogue"] = "";
+                }
+            }
+
+            // ナレーション
+            variables["narration"] = YamlUtilities.ConvertNewlinesToComma(settings.StoryNarration);
+            variables["narration_position"] = settings.StoryNarrationPosition.ToYamlValue();
+
+            // 装飾テキストセクション
+            variables["text_overlay_section"] = BuildTextOverlaySection(settings);
+
+            return variables;
+        }
+
+        /// <summary>
+        /// 雰囲気の値を取得（カスタム時はカスタム値を使用）
+        /// </summary>
+        private static string GetLightingMoodValue(SceneBuilderSettingsViewModel settings)
+        {
+            if (settings.StoryLightingMood == LightingMood.Custom &&
+                !string.IsNullOrWhiteSpace(settings.StoryCustomMood))
+            {
+                return settings.StoryCustomMood;
+            }
+            return settings.StoryLightingMood.ToYamlValue();
+        }
+
+        /// <summary>
+        /// 配置タイプの値を取得（カスタム時はカスタム値を使用）
+        /// </summary>
+        private static string GetLayoutTypeValue(SceneBuilderSettingsViewModel settings)
+        {
+            if (settings.StoryLayout == StoryLayout.Custom &&
+                !string.IsNullOrWhiteSpace(settings.StoryCustomLayout))
+            {
+                return settings.StoryCustomLayout;
+            }
+            return settings.StoryLayout.ToYamlValue();
+        }
+
+        /// <summary>
+        /// 装飾テキストセクションを構築
+        /// </summary>
+        private static string BuildTextOverlaySection(SceneBuilderSettingsViewModel settings)
+        {
+            if (settings.TextOverlayItems.Count == 0)
+            {
+                return "";
+            }
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("  # 装飾テキストオーバーレイ");
+            sb.AppendLine("  text_overlays:");
+
+            for (int i = 0; i < settings.TextOverlayItems.Count; i++)
+            {
+                var item = settings.TextOverlayItems[i];
+                sb.AppendLine($"    - image: \"{YamlUtilities.GetFileName(item.ImagePath)}\"");
+                sb.AppendLine($"      position: \"{item.Position}\"");
+                sb.AppendLine($"      size: \"{item.Size}\"");
+                sb.AppendLine($"      layer: \"{item.Layer.ToYamlValue()}\"");
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>

@@ -439,6 +439,7 @@ namespace nanobananaWindows.ViewModels
                 OutputType.BodySheet => ValidateBodySheetSettings(),
                 OutputType.Outfit => ValidateOutfitSettings(),
                 OutputType.Pose => ValidatePoseSettings(),
+                OutputType.SceneBuilder => ValidateSceneBuilderSettings(),
                 // 他の出力タイプは順次実装
                 _ => null
             };
@@ -533,6 +534,55 @@ namespace nanobananaWindows.ViewModels
             if (errors.Count > 0)
             {
                 return $"ポーズの必須項目が未入力です。\n\n以下の項目を入力してください：\n・{string.Join("\n・", errors)}";
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// シーンビルダー設定のバリデーション
+        /// </summary>
+        private string? ValidateSceneBuilderSettings()
+        {
+            var settings = SceneBuilderSettings;
+            var errors = new List<string>();
+
+            // 背景: ファイル指定時は背景画像が必須
+            if (settings.BackgroundSourceType == Models.BackgroundSourceType.File &&
+                string.IsNullOrWhiteSpace(settings.BackgroundImagePath))
+            {
+                errors.Add("背景画像（ファイル指定モード）");
+            }
+
+            // 背景: 情景説明時は説明が必須
+            if (settings.BackgroundSourceType == Models.BackgroundSourceType.Prompt &&
+                string.IsNullOrWhiteSpace(settings.BackgroundDescription))
+            {
+                errors.Add("背景の情景説明");
+            }
+
+            // キャラクター画像: 人数分全て必須
+            int charCount = settings.StoryCharacterCount.GetIntValue();
+            for (int i = 0; i < charCount; i++)
+            {
+                if (string.IsNullOrWhiteSpace(settings.StoryCharacters[i].ImagePath))
+                {
+                    errors.Add($"キャラクター {i + 1} の画像パス");
+                }
+            }
+
+            // 装飾テキスト: 追加した分は全て画像必須
+            for (int i = 0; i < settings.TextOverlayItems.Count; i++)
+            {
+                if (string.IsNullOrWhiteSpace(settings.TextOverlayItems[i].ImagePath))
+                {
+                    errors.Add($"装飾テキスト {i + 1} の画像パス");
+                }
+            }
+
+            if (errors.Count > 0)
+            {
+                return $"シーンビルダーの必須項目が未入力です。\n\n以下の項目を入力してください：\n・{string.Join("\n・", errors)}";
             }
 
             return null;

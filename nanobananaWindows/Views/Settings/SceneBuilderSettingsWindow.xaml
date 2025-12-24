@@ -51,7 +51,10 @@
 
                         <!-- ファイル指定時 -->
                         <StackPanel x:Name="BackgroundFilePanel" Spacing="4">
-                            <TextBlock Text="背景画像:" FontSize="12"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="背景画像:" FontSize="12"/>
+                                <TextBlock Text=" *" Foreground="Red" FontSize="12"/>
+                            </StackPanel>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -74,7 +77,10 @@
 
                         <!-- 情景説明時 -->
                         <StackPanel x:Name="BackgroundPromptPanel" Spacing="4" Visibility="Collapsed">
-                            <TextBlock Text="背景の情景説明:" FontSize="12"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="背景の情景説明:" FontSize="12"/>
+                                <TextBlock Text=" *" Foreground="Red" FontSize="12"/>
+                            </StackPanel>
                             <TextBox x:Name="BackgroundDescriptionTextBox"
                                      PlaceholderText="例：夕焼けの海辺、学校の屋上..."
                                      TextWrapping="Wrap" AcceptsReturn="True" Height="60"

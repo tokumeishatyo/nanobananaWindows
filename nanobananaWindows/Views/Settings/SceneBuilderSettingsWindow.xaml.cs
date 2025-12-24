@@ -234,9 +234,12 @@ namespace nanobananaWindows.Views.Settings
                 FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
             });
 
-            // 画像パス
+            // 画像パス（必須）
             var imageStack = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-            imageStack.Children.Add(new TextBlock { Text = "画像:", VerticalAlignment = VerticalAlignment.Center, Width = 50 });
+            var imageLabelStack = new StackPanel { Orientation = Orientation.Horizontal, Width = 50 };
+            imageLabelStack.Children.Add(new TextBlock { Text = "画像:", VerticalAlignment = VerticalAlignment.Center });
+            imageLabelStack.Children.Add(new TextBlock { Text = " *", Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red), VerticalAlignment = VerticalAlignment.Center });
+            imageStack.Children.Add(imageLabelStack);
             var imagePathBox = new TextBox
             {
                 Text = character.ImagePath,
@@ -422,12 +425,12 @@ namespace nanobananaWindows.Views.Settings
             Grid.SetColumn(numberText, 0);
             grid.Children.Add(numberText);
 
-            // 画像パス
+            // 画像パス（必須）
             int capturedIndex = index;
             var imagePathBox = new TextBox
             {
                 Text = item.ImagePath,
-                PlaceholderText = "画像パス（ドロップ可）",
+                PlaceholderText = "画像パス *（必須・ドロップ可）",
                 AllowDrop = true,
                 Margin = new Thickness(4, 0, 4, 0)
             };
@@ -774,8 +777,56 @@ namespace nanobananaWindows.Views.Settings
         // ウィンドウボタン
         // ============================================================
 
-        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        private async void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
+            var errors = new List<string>();
+
+            // 背景: ファイル指定時は背景画像が必須
+            if (_viewModel.BackgroundSourceType == BackgroundSourceType.File &&
+                string.IsNullOrWhiteSpace(_viewModel.BackgroundImagePath))
+            {
+                errors.Add("背景画像（ファイル指定モード）");
+            }
+
+            // 背景: 情景説明時は説明が必須
+            if (_viewModel.BackgroundSourceType == BackgroundSourceType.Prompt &&
+                string.IsNullOrWhiteSpace(_viewModel.BackgroundDescription))
+            {
+                errors.Add("背景の情景説明");
+            }
+
+            // キャラクター画像: 人数分全て必須
+            int charCount = _viewModel.StoryCharacterCount.GetIntValue();
+            for (int i = 0; i < charCount; i++)
+            {
+                if (string.IsNullOrWhiteSpace(_viewModel.StoryCharacters[i].ImagePath))
+                {
+                    errors.Add($"キャラクター {i + 1} の画像パス");
+                }
+            }
+
+            // 装飾テキスト: 追加した分は全て画像必須
+            for (int i = 0; i < _viewModel.TextOverlayItems.Count; i++)
+            {
+                if (string.IsNullOrWhiteSpace(_viewModel.TextOverlayItems[i].ImagePath))
+                {
+                    errors.Add($"装飾テキスト {i + 1} の画像パス");
+                }
+            }
+
+            if (errors.Count > 0)
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "入力エラー",
+                    Content = $"以下の必須項目が未入力です：\n\n・{string.Join("\n・", errors)}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
+                return;
+            }
+
             ResultSettings = _viewModel;
             _taskCompletionSource?.SetResult(true);
             this.Close();
