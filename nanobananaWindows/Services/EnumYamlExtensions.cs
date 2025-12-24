@@ -401,6 +401,215 @@ namespace nanobananaWindows.Services
             };
         }
 
+        /// <summary>
+        /// TitleFontのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this TitleFont font)
+        {
+            return font switch
+            {
+                TitleFont.HeavyMincho => "Heavy Mincho",
+                TitleFont.Brush => "Brush Script",
+                TitleFont.Gothic => "Gothic Bold",
+                _ => "Heavy Mincho"
+            };
+        }
+
+        /// <summary>
+        /// TitleSizeのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this TitleSize size)
+        {
+            return size switch
+            {
+                TitleSize.VeryLarge => "Extra Large",
+                TitleSize.Large => "Large",
+                TitleSize.Medium => "Medium",
+                _ => "Extra Large"
+            };
+        }
+
+        /// <summary>
+        /// GradientColorのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this GradientColor color)
+        {
+            return color switch
+            {
+                GradientColor.WhiteToBlue => "White to Blue Gradient",
+                GradientColor.WhiteToRed => "White to Red Gradient",
+                GradientColor.GoldToOrange => "Gold to Orange Gradient",
+                GradientColor.WhiteToPurple => "White to Purple Gradient",
+                GradientColor.SolidWhite => "Solid White",
+                GradientColor.SolidGold => "Solid Gold",
+                _ => "White to Blue Gradient"
+            };
+        }
+
+        /// <summary>
+        /// OutlineColorのYAML値を取得（装飾テキスト用）
+        /// </summary>
+        public static string ToYamlValue(this OutlineColor color)
+        {
+            return color switch
+            {
+                OutlineColor.Gold => "Gold",
+                OutlineColor.Black => "Black",
+                OutlineColor.Red => "Red",
+                OutlineColor.Blue => "Blue",
+                OutlineColor.None => "None",
+                _ => "Gold"
+            };
+        }
+
+        /// <summary>
+        /// GlowEffectのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this GlowEffect effect)
+        {
+            return effect switch
+            {
+                GlowEffect.None => "None",
+                GlowEffect.BlueLightning => "Blue Lightning",
+                GlowEffect.Fire => "Fire",
+                GlowEffect.Electric => "Electric Spark",
+                GlowEffect.Aura => "Aura Glow",
+                _ => "None"
+            };
+        }
+
+        /// <summary>
+        /// CalloutTypeのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this CalloutType type)
+        {
+            return type switch
+            {
+                CalloutType.Comic => "Comic Style",
+                CalloutType.VerticalShout => "Vertical Shout",
+                CalloutType.Pop => "Pop Style",
+                _ => "Comic Style"
+            };
+        }
+
+        /// <summary>
+        /// CalloutColorのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this CalloutColor color)
+        {
+            return color switch
+            {
+                CalloutColor.RedYellow => "Red with Yellow Outline",
+                CalloutColor.WhiteBlack => "White with Black Outline",
+                CalloutColor.BlueWhite => "Blue with White Outline",
+                CalloutColor.YellowRed => "Yellow with Red Outline",
+                _ => "Red with Yellow Outline"
+            };
+        }
+
+        /// <summary>
+        /// TextRotationのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this TextRotation rotation)
+        {
+            return rotation switch
+            {
+                TextRotation.None => "0",
+                TextRotation.SlightLeft => "-5",
+                TextRotation.Left => "-15",
+                TextRotation.SlightRight => "5",
+                TextRotation.Right => "15",
+                _ => "0"
+            };
+        }
+
+        /// <summary>
+        /// TextDistortionのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this TextDistortion distortion)
+        {
+            return distortion switch
+            {
+                TextDistortion.None => "None",
+                TextDistortion.ZoomIn => "Zoom In",
+                TextDistortion.ZoomOut => "Zoom Out",
+                TextDistortion.Wave => "Wave",
+                _ => "None"
+            };
+        }
+
+        /// <summary>
+        /// NameTagDesignのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this NameTagDesign design)
+        {
+            return design switch
+            {
+                NameTagDesign.Jagged => "Jagged Sticker",
+                NameTagDesign.Simple => "Simple Frame",
+                NameTagDesign.Ribbon => "Ribbon Banner",
+                _ => "Jagged Sticker"
+            };
+        }
+
+        /// <summary>
+        /// MessageWindowModeのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this MessageWindowMode mode)
+        {
+            return mode switch
+            {
+                MessageWindowMode.Full => "full",
+                MessageWindowMode.FaceOnly => "face_only",
+                MessageWindowMode.TextOnly => "text_only",
+                _ => "full"
+            };
+        }
+
+        /// <summary>
+        /// MessageWindowStyleのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this MessageWindowStyle style)
+        {
+            return style switch
+            {
+                MessageWindowStyle.SciFi => "SciFi Robot",
+                MessageWindowStyle.RetroRPG => "Retro RPG",
+                MessageWindowStyle.VisualNovel => "Visual Novel",
+                _ => "SciFi Robot"
+            };
+        }
+
+        /// <summary>
+        /// MessageFrameTypeのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this MessageFrameType frame)
+        {
+            return frame switch
+            {
+                MessageFrameType.CyberneticBlue => "Cybernetic Blue",
+                MessageFrameType.ClassicBlack => "Classic Black",
+                MessageFrameType.TranslucentWhite => "Translucent White",
+                MessageFrameType.GoldOrnate => "Gold Ornate",
+                _ => "Cybernetic Blue"
+            };
+        }
+
+        /// <summary>
+        /// FaceIconPositionのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this FaceIconPosition position)
+        {
+            return position switch
+            {
+                FaceIconPosition.LeftInside => "Left Inside",
+                FaceIconPosition.RightInside => "Right Inside",
+                FaceIconPosition.LeftOutside => "Left Outside",
+                FaceIconPosition.None => "None",
+                _ => "Left Inside"
+            };
+        }
+
         // ============================================================
         // スタイル変換関連
         // ============================================================

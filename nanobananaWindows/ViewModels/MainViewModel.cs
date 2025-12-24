@@ -441,6 +441,7 @@ namespace nanobananaWindows.ViewModels
                 OutputType.Pose => ValidatePoseSettings(),
                 OutputType.SceneBuilder => ValidateSceneBuilderSettings(),
                 OutputType.Background => ValidateBackgroundSettings(),
+                OutputType.DecorativeText => ValidateDecorativeTextSettings(),
                 // 他の出力タイプは順次実装
                 _ => null
             };
@@ -617,6 +618,36 @@ namespace nanobananaWindows.ViewModels
             if (errors.Count > 0)
             {
                 return $"背景生成の必須項目が未入力です。\n\n以下の項目を入力してください：\n・{string.Join("\n・", errors)}";
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 装飾テキスト設定のバリデーション
+        /// </summary>
+        private string? ValidateDecorativeTextSettings()
+        {
+            var settings = DecorativeTextSettings;
+            var errors = new List<string>();
+
+            // テキスト内容は必須
+            if (string.IsNullOrWhiteSpace(settings.Text))
+            {
+                errors.Add("テキスト内容");
+            }
+
+            // メッセージウィンドウで顔アイコン使用時は画像パス必須
+            if (settings.TextType == Models.DecorativeTextType.MessageWindow &&
+                settings.FaceIconPosition != Models.FaceIconPosition.None &&
+                string.IsNullOrWhiteSpace(settings.FaceIconImagePath))
+            {
+                errors.Add("顔アイコン画像");
+            }
+
+            if (errors.Count > 0)
+            {
+                return $"装飾テキストの必須項目が未入力です。\n\n以下の項目を入力してください：\n・{string.Join("\n・", errors)}";
             }
 
             return null;

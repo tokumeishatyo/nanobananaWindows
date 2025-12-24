@@ -30,7 +30,7 @@ namespace nanobananaWindows.Services
                 OutputType.Pose => GeneratePoseYaml(mainViewModel),
                 OutputType.SceneBuilder => GenerateSceneBuilderYaml(mainViewModel),
                 OutputType.Background => GenerateBackgroundYaml(mainViewModel),
-                OutputType.DecorativeText => GeneratePlaceholderYaml("装飾テキスト", "07_decorative_text.yaml"),
+                OutputType.DecorativeText => GenerateDecorativeTextYaml(mainViewModel),
                 OutputType.FourPanelManga => GeneratePlaceholderYaml("4コマ漫画", "08_four_panel.yaml"),
                 OutputType.StyleTransform => GeneratePlaceholderYaml("スタイル変換", "09_style_transform.yaml"),
                 OutputType.Infographic => GeneratePlaceholderYaml("インフォグラフィック", "10_infographic.yaml"),
@@ -577,6 +577,157 @@ namespace nanobananaWindows.Services
                 ["remove_people"] = settings.RemoveCharacters ? "true" : "false",
                 ["description"] = YamlUtilities.ConvertNewlinesToComma(description)
             };
+        }
+
+        /// <summary>
+        /// 装飾テキストYAML生成
+        /// </summary>
+        private string GenerateDecorativeTextYaml(MainViewModel mainViewModel)
+        {
+            var settings = mainViewModel.DecorativeTextSettings;
+            if (settings == null || !settings.HasSettings)
+            {
+                return "# Error: 装飾テキストの設定がありません\n# 詳細設定ボタンから設定を入力してください";
+            }
+
+            var variables = BuildDecorativeTextVariables(mainViewModel, settings);
+            return _templateEngine.Render("07_decorative_text.yaml", variables);
+        }
+
+        /// <summary>
+        /// 装飾テキスト用の変数辞書を構築
+        /// </summary>
+        private Dictionary<string, string> BuildDecorativeTextVariables(
+            MainViewModel mainViewModel,
+            DecorativeTextSettingsViewModel settings)
+        {
+            var authorName = mainViewModel.AuthorName?.Trim() ?? "";
+            var titleOverlayEnabled = mainViewModel.IncludeTitleInImage;
+            var (titlePosition, titleSize, authorPosition, authorSize) =
+                GetTitleOverlayPositions(titleOverlayEnabled, !string.IsNullOrEmpty(authorName));
+
+            var variables = new Dictionary<string, string>
+            {
+                // ヘッダーパーシャル用
+                ["header_comment"] = "Decorative Text (装飾テキスト)",
+                ["type"] = "decorative_text",
+                ["title"] = mainViewModel.Title ?? "",
+                ["author"] = authorName,
+                ["color_mode"] = mainViewModel.SelectedColorMode.ToYamlValue(),
+                ["output_style"] = mainViewModel.SelectedOutputStyle.ToYamlValue(),
+                ["aspect_ratio"] = mainViewModel.SelectedAspectRatio.ToYamlValue(),
+                ["title_overlay_enabled"] = titleOverlayEnabled ? "true" : "false",
+                ["title_position"] = titlePosition,
+                ["title_size"] = titleSize,
+                ["author_position"] = authorPosition,
+                ["author_size"] = authorSize,
+
+                // 共通
+                ["decorative_type"] = settings.TextType.ToYamlValue(),
+                ["transparent_background"] = settings.TransparentBackground ? "true" : "false",
+                ["text"] = settings.Text ?? "",
+                ["background"] = settings.TransparentBackground ? "Transparent" : "White",
+                ["ui_preset"] = settings.TextType.GetUiPreset()
+            };
+
+            // テキストタイプに応じたセクションを動的に構築
+            variables["type_specific_section"] = BuildTypeSpecificSection(settings);
+            variables["type_specific_constraints"] = BuildTypeSpecificConstraints(settings);
+
+            return variables;
+        }
+
+        /// <summary>
+        /// テキストタイプに応じた入力セクションを構築
+        /// </summary>
+        private static string BuildTypeSpecificSection(DecorativeTextSettingsViewModel settings)
+        {
+            var sb = new System.Text.StringBuilder();
+
+            switch (settings.TextType)
+            {
+                case DecorativeTextType.SkillName:
+                    sb.AppendLine("# ====================================================");
+                    sb.AppendLine("# Input - Skill (技名テロップ)");
+                    sb.AppendLine("# ====================================================");
+                    sb.AppendLine("input_skill:");
+                    sb.AppendLine($"  font_type: \"{settings.TitleFont.ToYamlValue()}\"");
+                    sb.AppendLine($"  size: \"{settings.TitleSize.ToYamlValue()}\"");
+                    sb.AppendLine($"  fill_color: \"{settings.TitleColor.ToYamlValue()}\"");
+                    sb.AppendLine($"  outline_enabled: {(settings.TitleOutline != OutlineColor.None ? "true" : "false")}");
+                    sb.AppendLine($"  outline_color: \"{settings.TitleOutline.ToYamlValue()}\"");
+                    sb.AppendLine($"  outline_thickness: \"thick\"");
+                    sb.AppendLine($"  glow_effect: \"{settings.TitleGlow.ToYamlValue()}\"");
+                    break;
+
+                case DecorativeTextType.Catchphrase:
+                    sb.AppendLine("# ====================================================");
+                    sb.AppendLine("# Input - Catchphrase (決め台詞)");
+                    sb.AppendLine("# ====================================================");
+                    sb.AppendLine("input_catchphrase:");
+                    sb.AppendLine($"  type: \"{settings.CalloutType.ToYamlValue()}\"");
+                    sb.AppendLine($"  color: \"{settings.CalloutColor.ToYamlValue()}\"");
+                    sb.AppendLine($"  rotation: \"{settings.CalloutRotation.ToYamlValue()}\"");
+                    sb.AppendLine($"  distortion: \"{settings.CalloutDistortion.ToYamlValue()}\"");
+                    break;
+
+                case DecorativeTextType.NamePlate:
+                    sb.AppendLine("# ====================================================");
+                    sb.AppendLine("# Input - Nameplate (キャラ名プレート)");
+                    sb.AppendLine("# ====================================================");
+                    sb.AppendLine("input_nameplate:");
+                    sb.AppendLine($"  design_type: \"{settings.NameTagDesign.ToYamlValue()}\"");
+                    sb.AppendLine($"  rotation: \"{settings.NameTagRotation.ToYamlValue()}\"");
+                    break;
+
+                case DecorativeTextType.MessageWindow:
+                    sb.AppendLine("# ====================================================");
+                    sb.AppendLine("# Input - Message (メッセージウィンドウ)");
+                    sb.AppendLine("# ====================================================");
+                    sb.AppendLine("input_message:");
+                    sb.AppendLine($"  mode: \"{settings.MessageMode.ToYamlValue()}\"");
+                    sb.AppendLine($"  speaker_name: \"{settings.SpeakerName ?? ""}\"");
+                    sb.AppendLine($"  style_preset: \"{settings.MessageStyle.ToYamlValue()}\"");
+                    sb.AppendLine($"  position: \"bottom\"");
+                    sb.AppendLine($"  width: \"full\"");
+                    sb.AppendLine($"  frame_type: \"{settings.MessageFrameType.ToYamlValue()}\"");
+                    sb.AppendLine($"  background_opacity: {settings.MessageOpacity.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)}");
+                    sb.AppendLine($"  face_icon_enabled: {(settings.FaceIconPosition != FaceIconPosition.None ? "true" : "false")}");
+                    sb.AppendLine($"  face_icon_source: \"{YamlUtilities.GetFileName(settings.FaceIconImagePath)}\"");
+                    sb.AppendLine($"  face_icon_position: \"{settings.FaceIconPosition.ToYamlValue()}\"");
+                    break;
+            }
+
+            sb.AppendLine();
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// テキストタイプに応じた制約セクションを構築
+        /// </summary>
+        private static string BuildTypeSpecificConstraints(DecorativeTextSettingsViewModel settings)
+        {
+            var sb = new System.Text.StringBuilder();
+
+            switch (settings.TextType)
+            {
+                case DecorativeTextType.NamePlate:
+                    sb.AppendLine("  nameplate:");
+                    sb.AppendLine("    - \"Generate ONLY the name plate/tag element\"");
+                    sb.AppendLine("    - \"Do NOT add any game UI elements (health bars, meters, VS logos)\"");
+                    sb.AppendLine("    - \"Do NOT add any fighting game or battle interface elements\"");
+                    break;
+
+                case DecorativeTextType.MessageWindow:
+                    sb.AppendLine("  message:");
+                    sb.AppendLine("    - \"Generate ONLY the message window UI element\"");
+                    sb.AppendLine("    - \"Do NOT draw any full-body character in the scene\"");
+                    sb.AppendLine("    - \"Do NOT include any character outside the message window\"");
+                    sb.AppendLine("    - \"The reference image is ONLY for the face icon, not for adding a character to the scene\"");
+                    break;
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>

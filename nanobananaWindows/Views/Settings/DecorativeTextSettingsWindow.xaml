@@ -39,7 +39,10 @@
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         CornerRadius="4" Padding="12">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="テキスト内容" FontWeight="SemiBold"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="テキスト内容" FontWeight="SemiBold"/>
+                            <TextBlock Text=" *" Foreground="Red" FontWeight="SemiBold"/>
+                        </StackPanel>
                         <TextBlock x:Name="TextPlaceholderHint" Text=""
                                    FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         <TextBox x:Name="TextContentTextBox"
