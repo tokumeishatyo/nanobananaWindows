@@ -35,7 +35,10 @@
                     <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                             CornerRadius="4" Padding="12">
                         <StackPanel Spacing="8">
-                            <TextBlock Text="背景の情景説明" FontWeight="SemiBold"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="背景の情景説明" FontWeight="SemiBold"/>
+                                <TextBlock Text=" *" Foreground="Red" FontWeight="SemiBold"/>
+                            </StackPanel>
                             <TextBlock Text="生成したい背景の説明を入力してください（日本語/英語どちらでも可）"
                                        FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <TextBox x:Name="DescriptionTextBox"
@@ -57,7 +60,10 @@
 
                             <!-- 参考画像パス -->
                             <StackPanel Spacing="4">
-                                <TextBlock Text="参考画像:" FontSize="12"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="参考画像:" FontSize="12"/>
+                                    <TextBlock Text=" *" Foreground="Red" FontSize="12"/>
+                                </StackPanel>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>

@@ -29,7 +29,7 @@ namespace nanobananaWindows.Services
                 OutputType.Outfit => GenerateOutfitYaml(mainViewModel),
                 OutputType.Pose => GeneratePoseYaml(mainViewModel),
                 OutputType.SceneBuilder => GenerateSceneBuilderYaml(mainViewModel),
-                OutputType.Background => GeneratePlaceholderYaml("背景生成", "06_background.yaml"),
+                OutputType.Background => GenerateBackgroundYaml(mainViewModel),
                 OutputType.DecorativeText => GeneratePlaceholderYaml("装飾テキスト", "07_decorative_text.yaml"),
                 OutputType.FourPanelManga => GeneratePlaceholderYaml("4コマ漫画", "08_four_panel.yaml"),
                 OutputType.StyleTransform => GeneratePlaceholderYaml("スタイル変換", "09_style_transform.yaml"),
@@ -519,6 +519,64 @@ namespace nanobananaWindows.Services
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// 背景生成YAML生成
+        /// </summary>
+        private string GenerateBackgroundYaml(MainViewModel mainViewModel)
+        {
+            var settings = mainViewModel.BackgroundSettings;
+            if (settings == null || !settings.HasSettings)
+            {
+                return "# Error: 背景生成の設定がありません\n# 詳細設定ボタンから設定を入力してください";
+            }
+
+            var variables = BuildBackgroundVariables(mainViewModel, settings);
+            return _templateEngine.Render("06_background.yaml", variables);
+        }
+
+        /// <summary>
+        /// 背景生成用の変数辞書を構築
+        /// </summary>
+        private Dictionary<string, string> BuildBackgroundVariables(
+            MainViewModel mainViewModel,
+            BackgroundSettingsViewModel settings)
+        {
+            var authorName = mainViewModel.AuthorName?.Trim() ?? "";
+            var titleOverlayEnabled = mainViewModel.IncludeTitleInImage;
+            var (titlePosition, titleSize, authorPosition, authorSize) =
+                GetTitleOverlayPositions(titleOverlayEnabled, !string.IsNullOrEmpty(authorName));
+
+            // 参考画像モードで変換指示が空の場合はデフォルト値を使用
+            var description = settings.Description;
+            if (settings.UseReferenceImage && string.IsNullOrWhiteSpace(description))
+            {
+                description = "アニメ調に変換";
+            }
+
+            return new Dictionary<string, string>
+            {
+                // ヘッダーパーシャル用
+                ["header_comment"] = "Background Generation (背景生成)",
+                ["type"] = "background",
+                ["title"] = mainViewModel.Title ?? "",
+                ["author"] = authorName,
+                ["color_mode"] = mainViewModel.SelectedColorMode.ToYamlValue(),
+                ["output_style"] = mainViewModel.SelectedOutputStyle.ToYamlValue(),
+                ["aspect_ratio"] = mainViewModel.SelectedAspectRatio.ToYamlValue(),
+                ["title_overlay_enabled"] = titleOverlayEnabled ? "true" : "false",
+                ["title_position"] = titlePosition,
+                ["title_size"] = titleSize,
+                ["author_position"] = authorPosition,
+                ["author_size"] = authorSize,
+
+                // 背景生成固有
+                ["use_reference_image"] = settings.UseReferenceImage ? "true" : "false",
+                ["reference_image"] = YamlUtilities.GetFileName(settings.ReferenceImagePath),
+                ["remove_people"] = settings.RemoveCharacters ? "true" : "false",
+                ["description"] = YamlUtilities.ConvertNewlinesToComma(description)
+            };
         }
 
         /// <summary>

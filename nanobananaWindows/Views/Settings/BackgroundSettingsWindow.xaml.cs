@@ -202,8 +202,40 @@ namespace nanobananaWindows.Views.Settings
         // ウィンドウボタン
         // ============================================================
 
-        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        private async void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
+            var errors = new System.Collections.Generic.List<string>();
+
+            if (_viewModel.UseReferenceImage)
+            {
+                // 参考画像モード
+                if (string.IsNullOrWhiteSpace(_viewModel.ReferenceImagePath))
+                {
+                    errors.Add("参考画像");
+                }
+            }
+            else
+            {
+                // 説明文モード
+                if (string.IsNullOrWhiteSpace(_viewModel.Description))
+                {
+                    errors.Add("背景の情景説明");
+                }
+            }
+
+            if (errors.Count > 0)
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "入力エラー",
+                    Content = $"以下の必須項目が未入力です：\n\n・{string.Join("\n・", errors)}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
+                return;
+            }
+
             ResultSettings = _viewModel;
             _taskCompletionSource?.SetResult(true);
             this.Close();

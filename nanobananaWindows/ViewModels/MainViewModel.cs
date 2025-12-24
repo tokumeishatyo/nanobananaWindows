@@ -440,6 +440,7 @@ namespace nanobananaWindows.ViewModels
                 OutputType.Outfit => ValidateOutfitSettings(),
                 OutputType.Pose => ValidatePoseSettings(),
                 OutputType.SceneBuilder => ValidateSceneBuilderSettings(),
+                OutputType.Background => ValidateBackgroundSettings(),
                 // 他の出力タイプは順次実装
                 _ => null
             };
@@ -583,6 +584,39 @@ namespace nanobananaWindows.ViewModels
             if (errors.Count > 0)
             {
                 return $"シーンビルダーの必須項目が未入力です。\n\n以下の項目を入力してください：\n・{string.Join("\n・", errors)}";
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 背景生成設定のバリデーション
+        /// </summary>
+        private string? ValidateBackgroundSettings()
+        {
+            var settings = BackgroundSettings;
+            var errors = new List<string>();
+
+            if (settings.UseReferenceImage)
+            {
+                // 参考画像モード
+                if (string.IsNullOrWhiteSpace(settings.ReferenceImagePath))
+                {
+                    errors.Add("参考画像");
+                }
+            }
+            else
+            {
+                // 説明文モード
+                if (string.IsNullOrWhiteSpace(settings.Description))
+                {
+                    errors.Add("背景の情景説明");
+                }
+            }
+
+            if (errors.Count > 0)
+            {
+                return $"背景生成の必須項目が未入力です。\n\n以下の項目を入力してください：\n・{string.Join("\n・", errors)}";
             }
 
             return null;
