@@ -90,7 +90,10 @@
 
                         <!-- メインキャラクター -->
                         <StackPanel Spacing="4">
-                            <TextBlock Text="メインキャラクター（必須）:" FontSize="12"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="メインキャラクター" FontSize="12"/>
+                                <TextBlock Text=" *" Foreground="Red"/>
+                            </StackPanel>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>

@@ -657,5 +657,25 @@ namespace nanobananaWindows.Services
                 _ => "left"
             };
         }
+
+        // ============================================================
+        // インフォグラフィック関連
+        // ============================================================
+
+        /// <summary>
+        /// InfographicStyleのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this InfographicStyle style)
+        {
+            return style.GetKey();
+        }
+
+        /// <summary>
+        /// InfographicLanguageのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this InfographicLanguage lang)
+        {
+            return lang.GetLanguageValue();
+        }
     }
 }

@@ -33,7 +33,7 @@ namespace nanobananaWindows.Services
                 OutputType.DecorativeText => GenerateDecorativeTextYaml(mainViewModel),
                 OutputType.FourPanelManga => GenerateFourPanelMangaYaml(mainViewModel),
                 OutputType.StyleTransform => GenerateStyleTransformYaml(mainViewModel),
-                OutputType.Infographic => GeneratePlaceholderYaml("インフォグラフィック", "10_infographic.yaml"),
+                OutputType.Infographic => GenerateInfographicYaml(mainViewModel),
                 _ => "# 未実装の出力タイプです"
             };
         }
@@ -968,6 +968,97 @@ namespace nanobananaWindows.Services
 
             sb.AppendLine();
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// インフォグラフィックYAML生成
+        /// </summary>
+        private string GenerateInfographicYaml(MainViewModel mainViewModel)
+        {
+            var settings = mainViewModel.InfographicSettings;
+            if (settings == null || !settings.HasSettings)
+            {
+                return "# Error: インフォグラフィックの設定がありません\n# 詳細設定ボタンから設定を入力してください";
+            }
+
+            var variables = BuildInfographicVariables(mainViewModel, settings);
+            return _templateEngine.Render("10_infographic.yaml", variables);
+        }
+
+        /// <summary>
+        /// インフォグラフィック用の変数辞書を構築
+        /// </summary>
+        private Dictionary<string, string> BuildInfographicVariables(
+            MainViewModel mainViewModel,
+            InfographicSettingsViewModel settings)
+        {
+            var authorName = mainViewModel.AuthorName?.Trim() ?? "";
+            var titleOverlayEnabled = mainViewModel.IncludeTitleInImage;
+            var (titlePosition, titleSize, authorPosition, authorSize) =
+                GetTitleOverlayPositions(titleOverlayEnabled, !string.IsNullOrEmpty(authorName));
+
+            var variables = new Dictionary<string, string>
+            {
+                // ヘッダーパーシャル用
+                ["header_comment"] = "Infographic (インフォグラフィック)",
+                ["type"] = "infographic",
+                ["title"] = mainViewModel.Title ?? "",
+                ["author"] = authorName,
+                ["color_mode"] = mainViewModel.SelectedColorMode.ToYamlValue(),
+                ["output_style"] = mainViewModel.SelectedOutputStyle.ToYamlValue(),
+                ["aspect_ratio"] = mainViewModel.SelectedAspectRatio.ToYamlValue(),
+                ["title_overlay_enabled"] = titleOverlayEnabled ? "true" : "false",
+                ["title_position"] = titlePosition,
+                ["title_size"] = titleSize,
+                ["author_position"] = authorPosition,
+                ["author_size"] = authorSize,
+
+                // インフォグラフィック固有
+                ["infographic_style"] = settings.InfographicStyle.GetKey(),
+                ["infographic_style_prompt"] = settings.InfographicStyle.GetPrompt(),
+                ["output_language"] = GetOutputLanguageValue(settings),
+                ["main_title"] = settings.MainTitle ?? "",
+                ["subtitle"] = settings.Subtitle ?? "",
+                ["main_character_image"] = YamlUtilities.GetFileName(settings.MainCharacterImagePath),
+                ["bonus_character_image"] = YamlUtilities.GetFileName(settings.SubCharacterImagePath),
+                ["bonus_character_enabled"] = !string.IsNullOrWhiteSpace(settings.SubCharacterImagePath) ? "true" : "false"
+            };
+
+            // セクション変数を追加
+            AddInfographicSectionVariables(variables, settings);
+
+            return variables;
+        }
+
+        /// <summary>
+        /// 出力言語の値を取得（Otherの場合はCustomLanguageを使用）
+        /// </summary>
+        private static string GetOutputLanguageValue(InfographicSettingsViewModel settings)
+        {
+            if (settings.OutputLanguage == InfographicLanguage.Other &&
+                !string.IsNullOrWhiteSpace(settings.CustomLanguage))
+            {
+                return settings.CustomLanguage;
+            }
+            return settings.OutputLanguage.GetLanguageValue();
+        }
+
+        /// <summary>
+        /// インフォグラフィックのセクション変数を追加（8セクション）
+        /// </summary>
+        private static void AddInfographicSectionVariables(
+            Dictionary<string, string> variables,
+            InfographicSettingsViewModel settings)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                var section = i < settings.Sections.Count ? settings.Sections[i] : null;
+                var sectionNum = i + 1;
+
+                variables[$"section_{sectionNum}_title"] = section?.Title ?? "";
+                variables[$"section_{sectionNum}_content"] =
+                    YamlUtilities.ConvertNewlinesToComma(section?.Content);
+            }
         }
 
         /// <summary>

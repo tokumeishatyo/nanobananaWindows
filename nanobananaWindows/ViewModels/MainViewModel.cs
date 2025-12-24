@@ -444,7 +444,7 @@ namespace nanobananaWindows.ViewModels
                 OutputType.DecorativeText => ValidateDecorativeTextSettings(),
                 OutputType.FourPanelManga => ValidateFourPanelMangaSettings(),
                 OutputType.StyleTransform => ValidateStyleTransformSettings(),
-                // 他の出力タイプは順次実装
+                OutputType.Infographic => ValidateInfographicSettings(),
                 _ => null
             };
         }
@@ -695,6 +695,21 @@ namespace nanobananaWindows.ViewModels
             if (string.IsNullOrWhiteSpace(settings.SourceImagePath))
             {
                 return "スタイル変換の必須項目が未入力です。\n\n以下の項目を入力してください：\n・元画像";
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// インフォグラフィック設定のバリデーション
+        /// </summary>
+        private string? ValidateInfographicSettings()
+        {
+            var settings = InfographicSettings;
+
+            if (string.IsNullOrWhiteSpace(settings.MainCharacterImagePath))
+            {
+                return "インフォグラフィックの必須項目が未入力です。\n\n以下の項目を入力してください：\n・メインキャラクター画像";
             }
 
             return null;
