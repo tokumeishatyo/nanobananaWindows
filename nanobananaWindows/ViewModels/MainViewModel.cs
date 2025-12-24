@@ -442,6 +442,7 @@ namespace nanobananaWindows.ViewModels
                 OutputType.SceneBuilder => ValidateSceneBuilderSettings(),
                 OutputType.Background => ValidateBackgroundSettings(),
                 OutputType.DecorativeText => ValidateDecorativeTextSettings(),
+                OutputType.FourPanelManga => ValidateFourPanelMangaSettings(),
                 // 他の出力タイプは順次実装
                 _ => null
             };
@@ -648,6 +649,36 @@ namespace nanobananaWindows.ViewModels
             if (errors.Count > 0)
             {
                 return $"装飾テキストの必須項目が未入力です。\n\n以下の項目を入力してください：\n・{string.Join("\n・", errors)}";
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 4コマ漫画設定のバリデーション
+        /// </summary>
+        private string? ValidateFourPanelMangaSettings()
+        {
+            var settings = FourPanelMangaSettings;
+            var errors = new List<string>();
+
+            // キャラクター1は必須
+            if (string.IsNullOrWhiteSpace(settings.Character1Name))
+            {
+                errors.Add("キャラクター1の名前");
+            }
+            if (string.IsNullOrWhiteSpace(settings.Character1ImagePath))
+            {
+                errors.Add("キャラクター1の画像");
+            }
+            if (string.IsNullOrWhiteSpace(settings.Character1Description))
+            {
+                errors.Add("キャラクター1の説明");
+            }
+
+            if (errors.Count > 0)
+            {
+                return $"4コマ漫画の必須項目が未入力です。\n\n以下の項目を入力してください：\n・{string.Join("\n・", errors)}";
             }
 
             return null;

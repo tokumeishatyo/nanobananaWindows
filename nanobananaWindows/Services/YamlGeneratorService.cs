@@ -31,7 +31,7 @@ namespace nanobananaWindows.Services
                 OutputType.SceneBuilder => GenerateSceneBuilderYaml(mainViewModel),
                 OutputType.Background => GenerateBackgroundYaml(mainViewModel),
                 OutputType.DecorativeText => GenerateDecorativeTextYaml(mainViewModel),
-                OutputType.FourPanelManga => GeneratePlaceholderYaml("4コマ漫画", "08_four_panel.yaml"),
+                OutputType.FourPanelManga => GenerateFourPanelMangaYaml(mainViewModel),
                 OutputType.StyleTransform => GeneratePlaceholderYaml("スタイル変換", "09_style_transform.yaml"),
                 OutputType.Infographic => GeneratePlaceholderYaml("インフォグラフィック", "10_infographic.yaml"),
                 _ => "# 未実装の出力タイプです"
@@ -728,6 +728,95 @@ namespace nanobananaWindows.Services
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// 4コマ漫画YAML生成
+        /// </summary>
+        private string GenerateFourPanelMangaYaml(MainViewModel mainViewModel)
+        {
+            var settings = mainViewModel.FourPanelMangaSettings;
+            if (settings == null || !settings.HasSettings)
+            {
+                return "# Error: 4コマ漫画の設定がありません\n# 詳細設定ボタンから設定を入力してください";
+            }
+
+            var variables = BuildFourPanelMangaVariables(mainViewModel, settings);
+            return _templateEngine.Render("08_four_panel.yaml", variables);
+        }
+
+        /// <summary>
+        /// 4コマ漫画用の変数辞書を構築
+        /// </summary>
+        private Dictionary<string, string> BuildFourPanelMangaVariables(
+            MainViewModel mainViewModel,
+            FourPanelMangaSettingsViewModel settings)
+        {
+            var authorName = mainViewModel.AuthorName?.Trim() ?? "";
+            var titleOverlayEnabled = mainViewModel.IncludeTitleInImage;
+            var (titlePosition, titleSize, authorPosition, authorSize) =
+                GetTitleOverlayPositions(titleOverlayEnabled, !string.IsNullOrEmpty(authorName));
+
+            var variables = new Dictionary<string, string>
+            {
+                // ヘッダーパーシャル用
+                ["header_comment"] = "Four Panel Manga (4コマ漫画)",
+                ["type"] = "four_panel_manga",
+                ["title"] = mainViewModel.Title ?? "",
+                ["author"] = authorName,
+                ["color_mode"] = mainViewModel.SelectedColorMode.ToYamlValue(),
+                ["output_style"] = mainViewModel.SelectedOutputStyle.ToYamlValue(),
+                ["aspect_ratio"] = mainViewModel.SelectedAspectRatio.ToYamlValue(),
+                ["title_overlay_enabled"] = titleOverlayEnabled ? "true" : "false",
+                ["title_position"] = titlePosition,
+                ["title_size"] = titleSize,
+                ["author_position"] = authorPosition,
+                ["author_size"] = authorSize,
+
+                // キャラクター
+                ["character_1_name"] = settings.Character1Name ?? "",
+                ["character_1_reference"] = YamlUtilities.GetFileName(settings.Character1ImagePath),
+                ["character_1_description"] = settings.Character1Description ?? "",
+                ["character_2_name"] = settings.Character2Name ?? "",
+                ["character_2_reference"] = YamlUtilities.GetFileName(settings.Character2ImagePath),
+                ["character_2_description"] = settings.Character2Description ?? ""
+            };
+
+            // パネル変数を追加
+            AddPanelVariables(variables, settings);
+
+            return variables;
+        }
+
+        /// <summary>
+        /// パネル変数を追加
+        /// </summary>
+        private static void AddPanelVariables(
+            Dictionary<string, string> variables,
+            FourPanelMangaSettingsViewModel settings)
+        {
+            var char1Name = settings.Character1Name ?? "";
+            var char2Name = settings.Character2Name ?? "";
+
+            for (int i = 0; i < 4; i++)
+            {
+                var panel = settings.Panels[i];
+                var panelNum = i + 1;
+                var prefix = $"panel_{panelNum}";
+
+                variables[$"{prefix}_prompt"] = panel.Scene ?? "";
+                variables[$"{prefix}_narration"] = panel.Narration ?? "";
+
+                // セリフ1
+                variables[$"{prefix}_speech1_character"] = panel.Speech1Char.ToCharacterName(char1Name, char2Name);
+                variables[$"{prefix}_speech1_content"] = panel.Speech1Text ?? "";
+                variables[$"{prefix}_speech1_position"] = panel.Speech1Position.ToYamlValue();
+
+                // セリフ2
+                variables[$"{prefix}_speech2_character"] = panel.Speech2Char.ToCharacterName(char1Name, char2Name);
+                variables[$"{prefix}_speech2_content"] = panel.Speech2Text ?? "";
+                variables[$"{prefix}_speech2_position"] = panel.Speech2Position.ToYamlValue();
+            }
         }
 
         /// <summary>

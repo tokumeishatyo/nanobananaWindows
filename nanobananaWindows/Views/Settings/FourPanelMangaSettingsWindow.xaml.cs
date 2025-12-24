@@ -448,8 +448,37 @@ namespace nanobananaWindows.Views.Settings
         // ウィンドウボタン
         // ============================================================
 
-        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        private async void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
+            var errors = new System.Collections.Generic.List<string>();
+
+            // キャラクター1は必須
+            if (string.IsNullOrWhiteSpace(_viewModel.Character1Name))
+            {
+                errors.Add("キャラクター1の名前");
+            }
+            if (string.IsNullOrWhiteSpace(_viewModel.Character1ImagePath))
+            {
+                errors.Add("キャラクター1の画像");
+            }
+            if (string.IsNullOrWhiteSpace(_viewModel.Character1Description))
+            {
+                errors.Add("キャラクター1の説明");
+            }
+
+            if (errors.Count > 0)
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "入力エラー",
+                    Content = $"以下の必須項目が未入力です：\n\n・{string.Join("\n・", errors)}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
+                return;
+            }
+
             ResultSettings = _viewModel;
             _taskCompletionSource?.SetResult(true);
             this.Close();

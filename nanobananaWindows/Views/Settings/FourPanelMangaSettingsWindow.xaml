@@ -33,12 +33,18 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Text="名前:" VerticalAlignment="Center" Grid.Row="0"/>
+                                <StackPanel Orientation="Horizontal" Grid.Row="0" VerticalAlignment="Center">
+                                    <TextBlock Text="名前:"/>
+                                    <TextBlock Text=" *" Foreground="Red"/>
+                                </StackPanel>
                                 <TextBox x:Name="Character1NameTextBox" PlaceholderText="例：彩瀬翔子"
                                          Grid.Row="0" Grid.Column="1" Margin="0,2"
                                          TextChanged="Character1NameTextBox_TextChanged"/>
 
-                                <TextBlock Text="画像:" VerticalAlignment="Center" Grid.Row="1"/>
+                                <StackPanel Orientation="Horizontal" Grid.Row="1" VerticalAlignment="Center">
+                                    <TextBlock Text="画像:"/>
+                                    <TextBlock Text=" *" Foreground="Red"/>
+                                </StackPanel>
                                 <Grid Grid.Row="1" Grid.Column="1" Margin="0,2">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -52,7 +58,10 @@
                                             Margin="8,0,0,0" Grid.Column="1"/>
                                 </Grid>
 
-                                <TextBlock Text="説明:" VerticalAlignment="Center" Grid.Row="2"/>
+                                <StackPanel Orientation="Horizontal" Grid.Row="2" VerticalAlignment="Center">
+                                    <TextBlock Text="説明:"/>
+                                    <TextBlock Text=" *" Foreground="Red"/>
+                                </StackPanel>
                                 <TextBox x:Name="Character1DescriptionTextBox" PlaceholderText="例：ポニーテールの赤髪、制服姿"
                                          Grid.Row="2" Grid.Column="1" Margin="0,2"
                                          TextChanged="Character1DescriptionTextBox_TextChanged"/>

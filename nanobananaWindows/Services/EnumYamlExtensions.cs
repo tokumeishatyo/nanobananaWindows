@@ -626,5 +626,36 @@ namespace nanobananaWindows.Services
                 _ => "chibi"
             };
         }
+
+        // ============================================================
+        // 4コマ漫画関連
+        // ============================================================
+
+        /// <summary>
+        /// SpeechCharacterをキャラクター名に変換
+        /// </summary>
+        public static string ToCharacterName(this SpeechCharacter character, string char1Name, string char2Name)
+        {
+            return character switch
+            {
+                SpeechCharacter.Character1 => char1Name,
+                SpeechCharacter.Character2 => char2Name,
+                SpeechCharacter.None => "",
+                _ => ""
+            };
+        }
+
+        /// <summary>
+        /// SpeechPositionのYAML値を取得
+        /// </summary>
+        public static string ToYamlValue(this SpeechPosition position)
+        {
+            return position switch
+            {
+                SpeechPosition.Left => "left",
+                SpeechPosition.Right => "right",
+                _ => "left"
+            };
+        }
     }
 }

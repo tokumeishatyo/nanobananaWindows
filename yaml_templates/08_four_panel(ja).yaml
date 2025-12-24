@@ -4,17 +4,19 @@
 # Main Prompt and Layout (メインプロンプトとレイアウト)
 # ====================================================
 main_prompt:
-  - "Generate a 4-panel manga (yonkoma) as a single image following the YAML instructions below."
+  - "以下のYAML指示に従って、4コマ漫画を1枚の画像として生成してください。"
+  - "添付したキャラクター設定画を参考に、キャラクターの外見を一貫させてください。"
+  - "Generate a 4-panel manga as a single image following the YAML instructions below."
   - "Use the attached character reference sheets to maintain consistent character appearances."
 
 layout_instruction:
-  - "Arrange the 4-panel manga in a single vertical column."
-  - "Do not place panels side by side; stack them vertically from top to bottom, one panel at a time."
-  - "The output image should be portrait-oriented (9:16 or 2:5 aspect ratio) with the 4-panel manga filling the entire image."
-  - "No margins required."
-  - "Faithfully reproduce each character's appearance based on the attached images and descriptions."
-  - "Display dialogue in speech bubbles and place them at the specified positions."
-  - "If there is narration, display it in a text box at the top or bottom of the panel."
+  - "4コマ漫画を縦1列に配置してください。"
+  - "横並びにせず、上から下へ1コマずつ縦に4つ並べてください。"
+  - "出力画像は縦長（9:16または2:5の比率）で、4コマ漫画だけが画像全体を占めるようにしてください。"
+  - "余白は不要です。"
+  - "各キャラクターの外見は添付画像と説明を忠実に再現してください。"
+  - "セリフは吹き出しで表示し、指定された位置に配置してください。"
+  - "ナレーションがある場合は、コマの上部または下部にテキストボックスで表示してください。"
 
 # ====================================================
 # Characters (登場人物)
