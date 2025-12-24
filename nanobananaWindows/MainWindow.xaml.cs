@@ -7,6 +7,8 @@ using Microsoft.UI.Xaml.Controls;
 using nanobananaWindows.Models;
 using nanobananaWindows.ViewModels;
 using nanobananaWindows.Views.Settings;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace nanobananaWindows
 {
@@ -482,25 +484,61 @@ namespace nanobananaWindows
         // 右カラム: YAMLプレビュー・画像プレビュー
         // ============================================================
 
-        private void CopyYamlButton_Click(object sender, RoutedEventArgs e)
+        private async void CopyYamlButton_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: YAMLをクリップボードにコピー
             if (!string.IsNullOrEmpty(_viewModel.YamlPreviewText))
             {
                 var dataPackage = new Windows.ApplicationModel.DataTransfer.DataPackage();
                 dataPackage.SetText(_viewModel.YamlPreviewText);
                 Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
+
+                var dialog = new ContentDialog
+                {
+                    Title = "コピー完了",
+                    Content = "コピーしました",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
             }
         }
 
-        private void SaveYamlButton_Click(object sender, RoutedEventArgs e)
+        private async void SaveYamlButton_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: YAMLをファイルに保存
+            var picker = new FileSavePicker();
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
+
+            picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            picker.FileTypeChoices.Add("YAML ファイル", new List<string> { ".yaml" });
+            picker.SuggestedFileName = "output";
+
+            var file = await picker.PickSaveFileAsync();
+            if (file != null)
+            {
+                await FileIO.WriteTextAsync(file, _viewModel.YamlPreviewText);
+            }
         }
 
-        private void LoadYamlButton_Click(object sender, RoutedEventArgs e)
+        private async void LoadYamlButton_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: YAMLをファイルから読込
+            var picker = new FileOpenPicker();
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
+
+            picker.ViewMode = PickerViewMode.List;
+            picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            picker.FileTypeFilter.Add(".yaml");
+
+            var file = await picker.PickSingleFileAsync();
+            if (file != null)
+            {
+                var content = await FileIO.ReadTextAsync(file);
+                _viewModel.YamlPreviewText = content;
+                YamlPreviewText.Text = content;
+                YamlPreviewText.Foreground = (Microsoft.UI.Xaml.Media.Brush)
+                    Application.Current.Resources["TextFillColorPrimaryBrush"];
+            }
         }
 
         private void SaveImageButton_Click(object sender, RoutedEventArgs e)
