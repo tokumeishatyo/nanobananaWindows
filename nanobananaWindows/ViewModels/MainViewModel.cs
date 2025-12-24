@@ -443,6 +443,7 @@ namespace nanobananaWindows.ViewModels
                 OutputType.Background => ValidateBackgroundSettings(),
                 OutputType.DecorativeText => ValidateDecorativeTextSettings(),
                 OutputType.FourPanelManga => ValidateFourPanelMangaSettings(),
+                OutputType.StyleTransform => ValidateStyleTransformSettings(),
                 // 他の出力タイプは順次実装
                 _ => null
             };
@@ -679,6 +680,21 @@ namespace nanobananaWindows.ViewModels
             if (errors.Count > 0)
             {
                 return $"4コマ漫画の必須項目が未入力です。\n\n以下の項目を入力してください：\n・{string.Join("\n・", errors)}";
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// スタイル変換設定のバリデーション
+        /// </summary>
+        private string? ValidateStyleTransformSettings()
+        {
+            var settings = StyleTransformSettings;
+
+            if (string.IsNullOrWhiteSpace(settings.SourceImagePath))
+            {
+                return "スタイル変換の必須項目が未入力です。\n\n以下の項目を入力してください：\n・元画像";
             }
 
             return null;

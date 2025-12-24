@@ -252,8 +252,22 @@ namespace nanobananaWindows.Views.Settings
         // ウィンドウボタン
         // ============================================================
 
-        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        private async void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
+            // 元画像は必須
+            if (string.IsNullOrWhiteSpace(_viewModel.SourceImagePath))
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "入力エラー",
+                    Content = "元画像を入力してください。",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
+                return;
+            }
+
             ResultSettings = _viewModel;
             _taskCompletionSource?.SetResult(true);
             this.Close();

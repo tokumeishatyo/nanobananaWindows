@@ -5,28 +5,16 @@
 # ====================================================
 input:
   source_image: "{{source_image}}"
-  style_type: "{{style_type}}"  # chibi / pixel
+  style_type: "{{style_type}}"
   transparent_background: {{transparent_background}}
 
-# ====================================================
-# Input - Chibi
-# ====================================================
-input_chibi:
-  style: "{{chibi_style}}"  # スタンダード / デフォルメ / ミニキャラ / プチキャラ
-
-# ====================================================
-# Input - Pixel Art
-# ====================================================
-input_pixel:
-  style: "{{pixel_style}}"
-  sprite_size: "{{pixel_sprite_size}}"
-
+{{type_specific_input}}
 # ====================================================
 # Output
 # ====================================================
 output:
   aspect_ratio: "1:1"
-  background: "{{background}}"  # transparent or specified
+  background: "{{background}}"
   quality: "clean illustration"
 
 # ====================================================
@@ -39,26 +27,7 @@ constraints_common:
     - "ALWAYS preserve the original colors from source image"
     - "Maintain character identity (face, hair, recognizable features)"
 
-# ====================================================
-# Constraints - Chibi Only (CRITICAL)
-# ====================================================
-constraints_chibi:
-  - "Transform to chibi style"
-  - "Large head, small body, simplified features"
-  - "Keep the cuteness and appeal of chibi style"
-  - "Use consistent chibi proportions throughout"
-  - "Clean, cute linework suitable for chibi style"
-
-# ====================================================
-# Constraints - Pixel Art Only (CRITICAL)
-# ====================================================
-constraints_pixel:
-  - "Convert to pixel art style"
-  - "Clean, sharp pixels with no anti-aliasing blur"
-  - "Limited color palette appropriate for pixel art"
-  - "Consistent pixel size throughout the sprite"
-  - "Game sprite aesthetic, suitable for game use"
-
+{{type_specific_constraints}}
 # ====================================================
 # Anti-Hallucination - Common (MUST FOLLOW)
 # ====================================================
@@ -68,20 +37,7 @@ anti_hallucination_common:
   - "Do NOT change outfit design significantly"
   - "Do NOT change character's recognizable features"
 
-# ====================================================
-# Anti-Hallucination - Chibi Only (MUST FOLLOW)
-# ====================================================
-anti_hallucination_chibi:
-  - "MAINTAIN chibi proportions consistently"
-
-# ====================================================
-# Anti-Hallucination - Pixel Art Only (MUST FOLLOW)
-# ====================================================
-anti_hallucination_pixel:
-  - "Do NOT add pixel art artifacts or noise"
-  - "Do NOT blur or anti-alias the pixels"
-  - "MAINTAIN consistent pixel grid"
-
+{{type_specific_anti_hallucination}}
 # ====================================================
 # Output Cleanliness (CRITICAL)
 # ====================================================

@@ -17,7 +17,10 @@
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         CornerRadius="4" Padding="12">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="元画像" FontWeight="SemiBold"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="元画像" FontWeight="SemiBold"/>
+                            <TextBlock Text=" *" Foreground="Red" FontWeight="SemiBold"/>
+                        </StackPanel>
                         <TextBlock Text="変換したいキャラクター画像を指定"
                                    FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         <Grid>

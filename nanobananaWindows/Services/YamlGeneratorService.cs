@@ -32,7 +32,7 @@ namespace nanobananaWindows.Services
                 OutputType.Background => GenerateBackgroundYaml(mainViewModel),
                 OutputType.DecorativeText => GenerateDecorativeTextYaml(mainViewModel),
                 OutputType.FourPanelManga => GenerateFourPanelMangaYaml(mainViewModel),
-                OutputType.StyleTransform => GeneratePlaceholderYaml("スタイル変換", "09_style_transform.yaml"),
+                OutputType.StyleTransform => GenerateStyleTransformYaml(mainViewModel),
                 OutputType.Infographic => GeneratePlaceholderYaml("インフォグラフィック", "10_infographic.yaml"),
                 _ => "# 未実装の出力タイプです"
             };
@@ -817,6 +817,157 @@ namespace nanobananaWindows.Services
                 variables[$"{prefix}_speech2_content"] = panel.Speech2Text ?? "";
                 variables[$"{prefix}_speech2_position"] = panel.Speech2Position.ToYamlValue();
             }
+        }
+
+        /// <summary>
+        /// スタイル変換YAML生成
+        /// </summary>
+        private string GenerateStyleTransformYaml(MainViewModel mainViewModel)
+        {
+            var settings = mainViewModel.StyleTransformSettings;
+            if (settings == null || !settings.HasSettings)
+            {
+                return "# Error: スタイル変換の設定がありません\n# 詳細設定ボタンから設定を入力してください";
+            }
+
+            var variables = BuildStyleTransformVariables(mainViewModel, settings);
+            return _templateEngine.Render("09_style_transform.yaml", variables);
+        }
+
+        /// <summary>
+        /// スタイル変換用の変数辞書を構築
+        /// </summary>
+        private Dictionary<string, string> BuildStyleTransformVariables(
+            MainViewModel mainViewModel,
+            StyleTransformSettingsViewModel settings)
+        {
+            var authorName = mainViewModel.AuthorName?.Trim() ?? "";
+            var titleOverlayEnabled = mainViewModel.IncludeTitleInImage;
+            var (titlePosition, titleSize, authorPosition, authorSize) =
+                GetTitleOverlayPositions(titleOverlayEnabled, !string.IsNullOrEmpty(authorName));
+
+            return new Dictionary<string, string>
+            {
+                // ヘッダーパーシャル用
+                ["header_comment"] = "Style Transform (スタイル変換)",
+                ["type"] = "style_transform",
+                ["title"] = mainViewModel.Title ?? "",
+                ["author"] = authorName,
+                ["color_mode"] = mainViewModel.SelectedColorMode.ToYamlValue(),
+                ["output_style"] = mainViewModel.SelectedOutputStyle.ToYamlValue(),
+                ["aspect_ratio"] = mainViewModel.SelectedAspectRatio.ToYamlValue(),
+                ["title_overlay_enabled"] = titleOverlayEnabled ? "true" : "false",
+                ["title_position"] = titlePosition,
+                ["title_size"] = titleSize,
+                ["author_position"] = authorPosition,
+                ["author_size"] = authorSize,
+
+                // スタイル変換固有
+                ["source_image"] = YamlUtilities.GetFileName(settings.SourceImagePath),
+                ["style_type"] = settings.TransformType.ToYamlValue(),
+                ["transparent_background"] = settings.TransparentBackground ? "true" : "false",
+                ["background"] = settings.TransparentBackground ? "transparent" : "white",
+
+                // タイプ別セクション（動的生成）
+                ["type_specific_input"] = BuildStyleTransformInputSection(settings),
+                ["type_specific_constraints"] = BuildStyleTransformConstraintsSection(settings),
+                ["type_specific_anti_hallucination"] = BuildStyleTransformAntiHallucinationSection(settings)
+            };
+        }
+
+        /// <summary>
+        /// スタイル変換のタイプ別入力セクションを構築
+        /// </summary>
+        private static string BuildStyleTransformInputSection(StyleTransformSettingsViewModel settings)
+        {
+            var sb = new System.Text.StringBuilder();
+
+            if (settings.TransformType == StyleTransformType.Chibi)
+            {
+                sb.AppendLine("# ====================================================");
+                sb.AppendLine("# Input - Chibi");
+                sb.AppendLine("# ====================================================");
+                sb.AppendLine("input_chibi:");
+                sb.AppendLine($"  style: \"{settings.ChibiStyle.GetPrompt()}\"");
+            }
+            else
+            {
+                sb.AppendLine("# ====================================================");
+                sb.AppendLine("# Input - Pixel Art");
+                sb.AppendLine("# ====================================================");
+                sb.AppendLine("input_pixel:");
+                sb.AppendLine($"  style: \"{settings.PixelStyle.GetPrompt()}\"");
+                sb.AppendLine($"  sprite_size: \"{settings.SpriteSize.GetPrompt()}\"");
+            }
+
+            sb.AppendLine();
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// スタイル変換のタイプ別制約セクションを構築
+        /// </summary>
+        private static string BuildStyleTransformConstraintsSection(StyleTransformSettingsViewModel settings)
+        {
+            var sb = new System.Text.StringBuilder();
+
+            if (settings.TransformType == StyleTransformType.Chibi)
+            {
+                sb.AppendLine("# ====================================================");
+                sb.AppendLine("# Constraints - Chibi Only (CRITICAL)");
+                sb.AppendLine("# ====================================================");
+                sb.AppendLine("constraints_chibi:");
+                sb.AppendLine("  - \"Transform to chibi style\"");
+                sb.AppendLine("  - \"Large head, small body, simplified features\"");
+                sb.AppendLine("  - \"Keep the cuteness and appeal of chibi style\"");
+                sb.AppendLine("  - \"Use consistent chibi proportions throughout\"");
+                sb.AppendLine("  - \"Clean, cute linework suitable for chibi style\"");
+            }
+            else
+            {
+                sb.AppendLine("# ====================================================");
+                sb.AppendLine("# Constraints - Pixel Art Only (CRITICAL)");
+                sb.AppendLine("# ====================================================");
+                sb.AppendLine("constraints_pixel:");
+                sb.AppendLine("  - \"Convert to pixel art style\"");
+                sb.AppendLine("  - \"Clean, sharp pixels with no anti-aliasing blur\"");
+                sb.AppendLine("  - \"Limited color palette appropriate for pixel art\"");
+                sb.AppendLine("  - \"Consistent pixel size throughout the sprite\"");
+                sb.AppendLine("  - \"Game sprite aesthetic, suitable for game use\"");
+            }
+
+            sb.AppendLine();
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// スタイル変換のタイプ別Anti-Hallucinationセクションを構築
+        /// </summary>
+        private static string BuildStyleTransformAntiHallucinationSection(StyleTransformSettingsViewModel settings)
+        {
+            var sb = new System.Text.StringBuilder();
+
+            if (settings.TransformType == StyleTransformType.Chibi)
+            {
+                sb.AppendLine("# ====================================================");
+                sb.AppendLine("# Anti-Hallucination - Chibi Only (MUST FOLLOW)");
+                sb.AppendLine("# ====================================================");
+                sb.AppendLine("anti_hallucination_chibi:");
+                sb.AppendLine("  - \"MAINTAIN chibi proportions consistently\"");
+            }
+            else
+            {
+                sb.AppendLine("# ====================================================");
+                sb.AppendLine("# Anti-Hallucination - Pixel Art Only (MUST FOLLOW)");
+                sb.AppendLine("# ====================================================");
+                sb.AppendLine("anti_hallucination_pixel:");
+                sb.AppendLine("  - \"Do NOT add pixel art artifacts or noise\"");
+                sb.AppendLine("  - \"Do NOT blur or anti-alias the pixels\"");
+                sb.AppendLine("  - \"MAINTAIN consistent pixel grid\"");
+            }
+
+            sb.AppendLine();
+            return sb.ToString();
         }
 
         /// <summary>
