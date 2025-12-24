@@ -339,9 +339,25 @@ namespace nanobananaWindows
             _viewModel.AuthorName = AuthorNameTextBox.Text;
         }
 
-        private void GenerateYamlButton_Click(object sender, RoutedEventArgs e)
+        private async void GenerateYamlButton_Click(object sender, RoutedEventArgs e)
         {
-            _viewModel.GenerateYaml();
+            var errorMessage = _viewModel.GenerateYaml();
+
+            if (errorMessage != null)
+            {
+                // バリデーションエラーをダイアログで表示
+                var dialog = new ContentDialog
+                {
+                    Title = "入力エラー",
+                    Content = errorMessage,
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
+                return;
+            }
+
+            // 成功時はYAMLプレビューを更新
             YamlPreviewText.Text = _viewModel.YamlPreviewText;
             YamlPreviewText.Foreground = (Microsoft.UI.Xaml.Media.Brush)
                 Application.Current.Resources["TextFillColorPrimaryBrush"];

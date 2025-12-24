@@ -19,26 +19,29 @@
                     <StackPanel Spacing="12">
                         <TextBlock Text="キャラクター情報" FontWeight="SemiBold" FontSize="16"/>
 
-                        <!-- 名前 -->
+                        <!-- 名前（必須） -->
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="名前:" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="名前"/>
+                                <TextBlock Text=" *" Foreground="#E74C3C" FontWeight="Bold"/>
+                            </StackPanel>
                             <TextBox x:Name="CharacterNameTextBox" Grid.Column="1"
                                      PlaceholderText="キャラクター名"
                                      TextChanged="CharacterNameTextBox_TextChanged"/>
                         </Grid>
 
-                        <!-- 参照画像 -->
+                        <!-- 参照画像（任意） -->
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="参照画像:" VerticalAlignment="Center"/>
+                            <TextBlock Text="参照画像" VerticalAlignment="Center"/>
                             <TextBox x:Name="ReferenceImagePathTextBox" Grid.Column="1"
                                      PlaceholderText="画像をドロップ、またはパスを入力..." Margin="0,0,8,0"
                                      AllowDrop="True"
@@ -49,9 +52,12 @@
                                     Click="BrowseButton_Click"/>
                         </Grid>
 
-                        <!-- 外見説明 -->
+                        <!-- 外見説明（必須） -->
                         <StackPanel Spacing="4">
-                            <TextBlock Text="外見説明:"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="外見説明"/>
+                                <TextBlock Text=" *" Foreground="#E74C3C" FontWeight="Bold"/>
+                            </StackPanel>
                             <TextBox x:Name="AppearanceDescriptionTextBox"
                                      PlaceholderText="例：&#x0a;・ショートボブの茶髪&#x0a;・大きな青い瞳&#x0a;・元気な笑顔&#x0a;・左頬にホクロ"
                                      AcceptsReturn="True"

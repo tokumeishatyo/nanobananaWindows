@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using nanobananaWindows.Models;
+using nanobananaWindows.Services;
 
 namespace nanobananaWindows.ViewModels
 {
@@ -12,6 +13,7 @@ namespace nanobananaWindows.ViewModels
     /// </summary>
     public class MainViewModel : INotifyPropertyChanged
     {
+        private readonly YamlGeneratorService _yamlGeneratorService = new();
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
@@ -401,10 +403,67 @@ namespace nanobananaWindows.ViewModels
         // コマンド（後で実装）
         // ============================================================
 
-        public void GenerateYaml()
+        /// <summary>
+        /// YAML生成（バリデーションエラーがあればエラーメッセージを返す）
+        /// </summary>
+        /// <returns>エラーメッセージ（成功時はnull）</returns>
+        public string? GenerateYaml()
         {
-            // TODO: YAML生成処理
-            YamlPreviewText = "# YAML生成後にここに表示されます";
+            // タイトル必須チェック
+            if (string.IsNullOrWhiteSpace(Title))
+            {
+                return "タイトルを入力してください。";
+            }
+
+            // 各出力タイプ固有のチェック
+            var validationError = ValidateCurrentOutputType();
+            if (validationError != null)
+            {
+                return validationError;
+            }
+
+            // YAML生成
+            YamlPreviewText = _yamlGeneratorService.GenerateYaml(SelectedOutputType, this);
+            return null;
+        }
+
+        /// <summary>
+        /// 現在の出力タイプのバリデーション
+        /// </summary>
+        /// <returns>エラーメッセージ（問題なければnull）</returns>
+        private string? ValidateCurrentOutputType()
+        {
+            return SelectedOutputType switch
+            {
+                OutputType.FaceSheet => ValidateFaceSheetSettings(),
+                // 他の出力タイプは順次実装
+                _ => null
+            };
+        }
+
+        /// <summary>
+        /// 顔三面図設定のバリデーション
+        /// </summary>
+        private string? ValidateFaceSheetSettings()
+        {
+            var settings = FaceSheetSettings;
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(settings.CharacterName))
+            {
+                errors.Add("名前");
+            }
+            if (string.IsNullOrWhiteSpace(settings.AppearanceDescription))
+            {
+                errors.Add("外見説明");
+            }
+
+            if (errors.Count > 0)
+            {
+                return $"顔三面図の必須項目が未入力です。\n\n以下の項目を入力してください：\n・{string.Join("\n・", errors)}";
+            }
+
+            return null;
         }
 
         public void ResetAll()

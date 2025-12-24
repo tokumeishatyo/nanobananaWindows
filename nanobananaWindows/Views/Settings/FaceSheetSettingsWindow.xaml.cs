@@ -1,5 +1,6 @@
 // rule.mdを読むこと
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
@@ -160,8 +161,33 @@ namespace nanobananaWindows.Views.Settings
         // ウィンドウボタン
         // ============================================================
 
-        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        private async void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
+            // 必須項目チェック（名前と外見説明の両方が必須）
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(_viewModel.CharacterName))
+            {
+                errors.Add("名前");
+            }
+            if (string.IsNullOrWhiteSpace(_viewModel.AppearanceDescription))
+            {
+                errors.Add("外見説明");
+            }
+
+            if (errors.Count > 0)
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "入力エラー",
+                    Content = $"以下の必須項目を入力してください：\n・{string.Join("\n・", errors)}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
+                return;
+            }
+
             ResultSettings = _viewModel;
             _taskCompletionSource?.SetResult(true);
             this.Close();
