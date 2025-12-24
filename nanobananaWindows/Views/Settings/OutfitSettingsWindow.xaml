@@ -13,9 +13,12 @@
         <!-- メインコンテンツ -->
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="24,16,24,16">
             <StackPanel Spacing="16" MinWidth="500">
-                <!-- 素体三面図の画像パス -->
+                <!-- 素体三面図の画像パス（必須） -->
                 <StackPanel Spacing="4">
-                    <TextBlock Text="入力画像（素体三面図）" FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="入力画像（素体三面図）" FontWeight="SemiBold"/>
+                        <TextBlock Text=" *" Foreground="Red" FontWeight="SemiBold"/>
+                    </StackPanel>
                     <TextBlock Text="※Step2で生成した素体三面図を指定"
                                FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     <Grid>
@@ -134,9 +137,12 @@
                         <StackPanel Spacing="8">
                             <TextBlock Text="参考画像から衣装を着せる" FontWeight="SemiBold"/>
 
-                            <!-- 衣装参考画像 -->
+                            <!-- 衣装参考画像（必須） -->
                             <StackPanel Spacing="4">
-                                <TextBlock Text="衣装参考画像:" FontSize="12"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="衣装参考画像:" FontSize="12"/>
+                                    <TextBlock Text=" *" Foreground="Red" FontSize="12"/>
+                                </StackPanel>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>

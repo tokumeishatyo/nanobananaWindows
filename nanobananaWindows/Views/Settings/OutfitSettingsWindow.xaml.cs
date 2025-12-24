@@ -420,8 +420,36 @@ namespace nanobananaWindows.Views.Settings
         // ウィンドウボタン
         // ============================================================
 
-        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        private async void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
+            // 共通: 素体三面図の画像パスは必須
+            if (string.IsNullOrWhiteSpace(_viewModel.BodySheetImagePath))
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "入力エラー",
+                    Content = "素体三面図の画像パスを入力してください。",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
+                return;
+            }
+
+            // 参考画像モードの場合: 衣装参考画像も必須
+            if (!_viewModel.UseOutfitBuilder && string.IsNullOrWhiteSpace(_viewModel.ReferenceOutfitImagePath))
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "入力エラー",
+                    Content = "衣装参考画像を入力してください。",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
+                return;
+            }
+
             ResultSettings = _viewModel;
             _taskCompletionSource?.SetResult(true);
             this.Close();

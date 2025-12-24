@@ -26,7 +26,7 @@ namespace nanobananaWindows.Services
                 OutputType.FaceSheet => GenerateFaceSheetYaml(mainViewModel),
                 OutputType.BodySheet => GenerateBodySheetYaml(mainViewModel),
                 // 他の出力タイプは順次実装
-                OutputType.Outfit => GeneratePlaceholderYaml("衣装着用", "03_outfit.yaml"),
+                OutputType.Outfit => GenerateOutfitYaml(mainViewModel),
                 OutputType.Pose => GeneratePlaceholderYaml("ポーズ", "04_pose.yaml"),
                 OutputType.SceneBuilder => GeneratePlaceholderYaml("シーンビルダー", "05_scene.yaml"),
                 OutputType.Background => GeneratePlaceholderYaml("背景生成", "06_background.yaml"),
@@ -144,6 +144,133 @@ namespace nanobananaWindows.Services
                 ["render_type"] = settings.BodyRenderType.ToYamlValue(),
                 ["additional_notes"] = YamlUtilities.ConvertNewlinesToComma(settings.AdditionalDescription)
             };
+        }
+
+        /// <summary>
+        /// 衣装着用YAML生成（モードに応じてテンプレートを切り替え）
+        /// </summary>
+        private string GenerateOutfitYaml(MainViewModel mainViewModel)
+        {
+            var settings = mainViewModel.OutfitSettings;
+            if (settings == null || !settings.HasSettings)
+            {
+                return "# Error: 衣装着用の設定がありません\n# 詳細設定ボタンから設定を入力してください";
+            }
+
+            if (settings.UseOutfitBuilder)
+            {
+                // プリセットモード
+                var variables = BuildOutfitPresetVariables(mainViewModel, settings);
+                return _templateEngine.Render("03_outfit_preset.yaml", variables);
+            }
+            else
+            {
+                // 参考画像モード
+                var variables = BuildOutfitReferenceVariables(mainViewModel, settings);
+                return _templateEngine.Render("03_outfit_reference.yaml", variables);
+            }
+        }
+
+        /// <summary>
+        /// プリセットモード用の変数辞書を構築
+        /// </summary>
+        private Dictionary<string, string> BuildOutfitPresetVariables(
+            MainViewModel mainViewModel,
+            OutfitSettingsViewModel settings)
+        {
+            var authorName = mainViewModel.AuthorName?.Trim() ?? "";
+            var titleOverlayEnabled = mainViewModel.IncludeTitleInImage;
+            var (titlePosition, titleSize, authorPosition, authorSize) =
+                GetTitleOverlayPositions(titleOverlayEnabled, !string.IsNullOrEmpty(authorName));
+
+            // プロンプト生成
+            var prompt = BuildOutfitPrompt(settings);
+
+            return new Dictionary<string, string>
+            {
+                // ヘッダーパーシャル用
+                ["header_comment"] = "Outfit Reference Sheet (衣装着用 - プリセット)",
+                ["type"] = "character_design",
+                ["title"] = mainViewModel.Title ?? "",
+                ["author"] = authorName,
+                ["color_mode"] = mainViewModel.SelectedColorMode.ToYamlValue(),
+                ["output_style"] = mainViewModel.SelectedOutputStyle.ToYamlValue(),
+                ["aspect_ratio"] = mainViewModel.SelectedAspectRatio.ToYamlValue(),
+                ["title_overlay_enabled"] = titleOverlayEnabled ? "true" : "false",
+                ["title_position"] = titlePosition,
+                ["title_size"] = titleSize,
+                ["author_position"] = authorPosition,
+                ["author_size"] = authorSize,
+
+                // 衣装着用（プリセット）固有
+                ["body_sheet"] = YamlUtilities.GetFileName(settings.BodySheetImagePath),
+                ["category"] = settings.OutfitCategory.ToYamlValue(),
+                ["shape"] = settings.OutfitShape,
+                ["color"] = settings.OutfitColor.ToYamlValue(),
+                ["pattern"] = settings.OutfitPattern.ToYamlValue(),
+                ["style_impression"] = settings.OutfitStyle.ToYamlValue(),
+                ["prompt"] = prompt,
+                ["additional_notes"] = YamlUtilities.ConvertNewlinesToComma(settings.AdditionalDescription)
+            };
+        }
+
+        /// <summary>
+        /// 参考画像モード用の変数辞書を構築
+        /// </summary>
+        private Dictionary<string, string> BuildOutfitReferenceVariables(
+            MainViewModel mainViewModel,
+            OutfitSettingsViewModel settings)
+        {
+            var authorName = mainViewModel.AuthorName?.Trim() ?? "";
+            var titleOverlayEnabled = mainViewModel.IncludeTitleInImage;
+            var (titlePosition, titleSize, authorPosition, authorSize) =
+                GetTitleOverlayPositions(titleOverlayEnabled, !string.IsNullOrEmpty(authorName));
+
+            return new Dictionary<string, string>
+            {
+                // ヘッダーパーシャル用
+                ["header_comment"] = "Outfit Reference Sheet (衣装着用 - 参考画像)",
+                ["type"] = "character_design",
+                ["title"] = mainViewModel.Title ?? "",
+                ["author"] = authorName,
+                ["color_mode"] = mainViewModel.SelectedColorMode.ToYamlValue(),
+                ["output_style"] = mainViewModel.SelectedOutputStyle.ToYamlValue(),
+                ["aspect_ratio"] = mainViewModel.SelectedAspectRatio.ToYamlValue(),
+                ["title_overlay_enabled"] = titleOverlayEnabled ? "true" : "false",
+                ["title_position"] = titlePosition,
+                ["title_size"] = titleSize,
+                ["author_position"] = authorPosition,
+                ["author_size"] = authorSize,
+
+                // 衣装着用（参考画像）固有
+                ["body_sheet"] = YamlUtilities.GetFileName(settings.BodySheetImagePath),
+                ["outfit_reference"] = YamlUtilities.GetFileName(settings.ReferenceOutfitImagePath),
+                ["description"] = YamlUtilities.ConvertNewlinesToComma(settings.ReferenceDescription),
+                ["fit_mode"] = settings.FitMode.ToYamlValue(),
+                ["include_headwear"] = settings.IncludeHeadwear ? "true" : "false",
+                ["additional_notes"] = YamlUtilities.ConvertNewlinesToComma(settings.AdditionalDescription)
+            };
+        }
+
+        /// <summary>
+        /// プリセット衣装のプロンプトを生成
+        /// </summary>
+        private static string BuildOutfitPrompt(OutfitSettingsViewModel settings)
+        {
+            var parts = new List<string>();
+
+            if (settings.OutfitCategory != OutfitCategory.Auto)
+                parts.Add(settings.OutfitCategory.ToYamlValue());
+            if (settings.OutfitShape != "おまかせ")
+                parts.Add(settings.OutfitShape);
+            if (settings.OutfitColor != OutfitColor.Auto)
+                parts.Add(settings.OutfitColor.ToYamlValue());
+            if (settings.OutfitPattern != OutfitPattern.Auto)
+                parts.Add(settings.OutfitPattern.ToYamlValue());
+            if (settings.OutfitStyle != OutfitFashionStyle.Auto)
+                parts.Add(settings.OutfitStyle.ToYamlValue());
+
+            return parts.Count > 0 ? string.Join(", ", parts) : "auto";
         }
 
         /// <summary>

@@ -437,6 +437,7 @@ namespace nanobananaWindows.ViewModels
             {
                 OutputType.FaceSheet => ValidateFaceSheetSettings(),
                 OutputType.BodySheet => ValidateBodySheetSettings(),
+                OutputType.Outfit => ValidateOutfitSettings(),
                 // 他の出力タイプは順次実装
                 _ => null
             };
@@ -477,6 +478,33 @@ namespace nanobananaWindows.ViewModels
             if (string.IsNullOrWhiteSpace(settings.FaceSheetImagePath))
             {
                 return "素体三面図の必須項目が未入力です。\n\n顔三面図の画像パスを入力してください。";
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 衣装着用設定のバリデーション
+        /// </summary>
+        private string? ValidateOutfitSettings()
+        {
+            var settings = OutfitSettings;
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(settings.BodySheetImagePath))
+            {
+                errors.Add("素体三面図の画像パス");
+            }
+
+            // 参考画像モードの場合
+            if (!settings.UseOutfitBuilder && string.IsNullOrWhiteSpace(settings.ReferenceOutfitImagePath))
+            {
+                errors.Add("衣装参考画像");
+            }
+
+            if (errors.Count > 0)
+            {
+                return $"衣装着用の必須項目が未入力です。\n\n以下の項目を入力してください：\n・{string.Join("\n・", errors)}";
             }
 
             return null;
